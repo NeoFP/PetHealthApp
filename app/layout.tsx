@@ -22,19 +22,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" className="light">
+      <body className={`${inter.className} bg-white`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          forcedTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <SidebarProvider>
-            <div className="flex min-h-screen flex-col">
-              <div className="flex flex-1">
+            <div className="flex min-h-screen w-full flex-col bg-white">
+              <div className="flex flex-1 w-full bg-white">
                 <AppSidebar />
-                <main className="flex-1">{children}</main>
+                <main className="flex-1 w-full bg-white overflow-auto">
+                  <div className="min-h-full w-full bg-white">{children}</div>
+                </main>
               </div>
               <Footer />
             </div>

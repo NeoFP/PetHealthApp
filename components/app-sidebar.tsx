@@ -65,31 +65,33 @@ export function AppSidebar() {
   }
 
   return (
-    <Sidebar className="border-r bg-white dark:bg-gray-950">
-      <SidebarHeader className="p-4 border-b">
-        <div className="flex items-center gap-2">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <Activity className="h-6 w-6 text-green-700" />
-            <span className="text-xl font-bold text-green-800">Pet Health</span>
+    <Sidebar className="border-r bg-white w-72 min-w-72">
+      <SidebarHeader className="p-6 border-b bg-white">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard" className="flex items-center gap-3">
+            <Activity className="h-8 w-8 text-green-700" />
+            <span className="text-2xl font-bold text-green-800">
+              Pet Health
+            </span>
           </Link>
         </div>
       </SidebarHeader>
-      <SidebarContent>
-        <SidebarMenu>
+      <SidebarContent className="bg-white p-4">
+        <SidebarMenu className="space-y-2">
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
                 isActive={pathname === item.href}
                 tooltip={item.title}
-                className={
+                className={`h-12 px-4 rounded-lg text-base font-medium ${
                   pathname === item.href
-                    ? "bg-green-50 text-green-900 dark:bg-green-950 dark:text-green-300"
-                    : ""
-                }
+                    ? "bg-green-100 text-green-900 border border-green-200"
+                    : "hover:bg-gray-50 text-gray-700 hover:text-green-800"
+                }`}
               >
-                <Link href={item.href}>
-                  <item.icon className="h-5 w-5" />
+                <Link href={item.href} className="flex items-center gap-3">
+                  <item.icon className="h-6 w-6" />
                   <span>{item.title}</span>
                 </Link>
               </SidebarMenuButton>
@@ -98,8 +100,8 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarRail />
-      <div className="absolute bottom-4 left-0 right-0 px-4">
-        <SidebarTrigger className="w-full" />
+      <div className="absolute bottom-6 left-0 right-0 px-6">
+        <SidebarTrigger className="w-full h-10 bg-gray-100 hover:bg-gray-200 text-gray-600" />
       </div>
     </Sidebar>
   );

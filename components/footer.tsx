@@ -3,7 +3,7 @@ import { Activity } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="border-t bg-white dark:bg-gray-950">
+    <footer className="border-t bg-white">
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center gap-2 mb-4 md:mb-0">
