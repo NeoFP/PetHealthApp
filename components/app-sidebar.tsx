@@ -1,7 +1,16 @@
-"use client"
-import { usePathname } from "next/navigation"
-import Link from "next/link"
-import { Activity, MessageSquare, Pill, Utensils, Dumbbell, PawPrint } from "lucide-react"
+"use client";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import {
+  Home,
+  MessageSquare,
+  Pill,
+  Utensils,
+  Camera,
+  User,
+  Activity,
+  LayoutDashboard,
+} from "lucide-react";
 
 import {
   Sidebar,
@@ -12,52 +21,73 @@ import {
   SidebarMenuButton,
   SidebarRail,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 const navItems = [
   {
-    title: "Disease Prediction",
-    href: "/disease-prediction",
+    title: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Disease Detection",
+    href: "/disease-detection",
     icon: Pill,
   },
   {
-    title: "Dog Nutrition",
-    href: "/dog-nutrition",
+    title: "Nutrition Planner",
+    href: "/nutrition-planner",
     icon: Utensils,
   },
   {
-    title: "Disease Exercise",
-    href: "/disease-exercise",
-    icon: Dumbbell,
+    title: "Skin Disease Tool",
+    href: "/skin-disease",
+    icon: Camera,
   },
   {
-    title: "Symptom Prediction",
-    href: "/symptom-prediction",
-    icon: Activity,
-  },
-  {
-    title: "Chat with Vet",
-    href: "/chat-with-vet",
+    title: "Chatbot",
+    href: "/chatbot",
     icon: MessageSquare,
   },
-]
+  {
+    title: "Profile",
+    href: "/profile",
+    icon: User,
+  },
+];
 
 export function AppSidebar() {
-  const pathname = usePathname()
+  const pathname = usePathname();
+
+  // Don't show sidebar on login, signup or home page
+  if (pathname === "/" || pathname === "/login" || pathname === "/signup") {
+    return null;
+  }
 
   return (
-    <Sidebar>
-      <SidebarHeader className="p-4">
+    <Sidebar className="border-r bg-white dark:bg-gray-950">
+      <SidebarHeader className="p-4 border-b">
         <div className="flex items-center gap-2">
-          <PawPrint className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold">Pet Health</span>
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <Activity className="h-6 w-6 text-green-700" />
+            <span className="text-xl font-bold text-green-800">Pet Health</span>
+          </Link>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <SidebarMenuButton asChild isActive={pathname === item.href} tooltip={item.title}>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === item.href}
+                tooltip={item.title}
+                className={
+                  pathname === item.href
+                    ? "bg-green-50 text-green-900 dark:bg-green-950 dark:text-green-300"
+                    : ""
+                }
+              >
                 <Link href={item.href}>
                   <item.icon className="h-5 w-5" />
                   <span>{item.title}</span>
@@ -72,6 +102,5 @@ export function AppSidebar() {
         <SidebarTrigger className="w-full" />
       </div>
     </Sidebar>
-  )
+  );
 }
-
