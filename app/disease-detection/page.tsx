@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/notification";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Common symptoms for pets
 const commonSymptoms = [
@@ -58,9 +57,8 @@ const commonSymptoms = [
 export default function DiseaseDetectionPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("symptoms");
 
-  // Form state
+  // Form state for detailed analysis
   const [petType, setPetType] = useState("dog");
   const [age, setAge] = useState("");
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
@@ -68,11 +66,6 @@ export default function DiseaseDetectionPage() {
   const [symptomSeverity, setSymptomSeverity] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
   const [previousConditions, setPreviousConditions] = useState("");
-
-  // Quick assessment state
-  const [quickPetType, setQuickPetType] = useState("dog");
-  const [primarySymptom, setPrimarySymptom] = useState("");
-  const [urgency, setUrgency] = useState("medium");
 
   const handleSymptomChange = (symptomId: string, isChecked: boolean) => {
     if (isChecked) {
@@ -168,113 +161,6 @@ export default function DiseaseDetectionPage() {
     }
   };
 
-  const handleQuick = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!primarySymptom) {
-      toast.error("Please describe the main symptom");
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      // For quick assessment, we'll try to map the described symptom to our available symptoms
-      // This is a simple keyword matching approach
-      const symptomsPayload: { [key: string]: number } = {
-        "past disease": 0,
-        "fever": 0,
-        "shortness of breathe": 0,
-        "fatigue": 0,
-        "joint pain": 0,
-        "cough": 0,
-        "abdominal pain": 0,
-        "dizziness": 0,
-        "nausea": 0,
-        "vomiting": 0,
-        "diarrhea": 0,
-        "seizures": 0,
-        "incordination": 0,
-        "headtilt": 0,
-        "difficulty in urination": 0,
-        "blood in uri": 0,
-        "urinarry dribbling": 0,
-        "limping": 0,
-        "hemoglobin uria": 0,
-        "pale gums": 0,
-        "reduced appetite": 0,
-        "cyanosed gums": 0,
-        "hyperemic gums": 0,
-        "ascities": 0,
-        "jaundice": 0,
-      };
-
-      // Simple keyword matching to set symptoms based on description
-      const symptomText = primarySymptom.toLowerCase();
-      
-      if (symptomText.includes("fever") || symptomText.includes("hot") || symptomText.includes("temperature")) {
-        symptomsPayload["fever"] = 1;
-      }
-      if (symptomText.includes("vomit") || symptomText.includes("throw up")) {
-        symptomsPayload["vomiting"] = 1;
-      }
-      if (symptomText.includes("diarrhea") || symptomText.includes("loose stool")) {
-        symptomsPayload["diarrhea"] = 1;
-      }
-      if (symptomText.includes("cough") || symptomText.includes("coughing")) {
-        symptomsPayload["cough"] = 1;
-      }
-      if (symptomText.includes("limp") || symptomText.includes("leg") || symptomText.includes("walk")) {
-        symptomsPayload["limping"] = 1;
-      }
-      if (symptomText.includes("tired") || symptomText.includes("fatigue") || symptomText.includes("weak")) {
-        symptomsPayload["fatigue"] = 1;
-      }
-      if (symptomText.includes("appetite") || symptomText.includes("eating") || symptomText.includes("food")) {
-        symptomsPayload["reduced appetite"] = 1;
-      }
-      if (symptomText.includes("seizure") || symptomText.includes("convulsion")) {
-        symptomsPayload["seizures"] = 1;
-      }
-      if (symptomText.includes("nausea") || symptomText.includes("sick")) {
-        symptomsPayload["nausea"] = 1;
-      }
-      if (symptomText.includes("breath") || symptomText.includes("breathing")) {
-        symptomsPayload["shortness of breathe"] = 1;
-      }
-
-      // Make API call
-      const response = await fetch("http://localhost:5001/predict/symptom", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(symptomsPayload),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to get prediction from API");
-      }
-
-      const result = await response.json();
-
-      // Store the result and navigate to results
-      sessionStorage.setItem("diseaseDetectionResult", JSON.stringify({
-        result,
-        petType: quickPetType,
-        primarySymptom,
-        urgency,
-        isQuickAssessment: true,
-      }));
-
-      router.push("/disease-detection/results");
-    } catch (error) {
-      console.error("API Error:", error);
-      toast.error("Failed to analyze symptoms. Please check if the API server is running.");
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen w-full bg-white">
       <div className="flex justify-center items-center min-h-screen p-8 w-full">
@@ -288,364 +174,216 @@ export default function DiseaseDetectionPage() {
             </p>
           </div>
 
-          <Tabs
-            defaultValue="symptoms"
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="w-full"
-          >
-            <TabsList className="grid w-full grid-cols-2 mb-8">
-              <TabsTrigger value="symptoms" className="text-lg py-3">
-                Detailed Analysis
-              </TabsTrigger>
-              <TabsTrigger value="quick" className="text-lg py-3">
-                Quick Assessment
-              </TabsTrigger>
-            </TabsList>
+          <Card className="bg-white border-2">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-2xl">Symptom Analysis</CardTitle>
+              <CardDescription className="text-base">
+                Provide detailed information about your pet's symptoms for a
+                more accurate analysis
+              </CardDescription>
+            </CardHeader>
+            <form onSubmit={handleDetailed}>
+              <CardContent className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <Label htmlFor="pet-type" className="text-base font-medium">
+                      Pet Type
+                    </Label>
+                    <Select value={petType} onValueChange={setPetType}>
+                      <SelectTrigger id="pet-type" className="h-12">
+                        <SelectValue placeholder="Select pet type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="dog">Dog</SelectItem>
+                        <SelectItem value="cat">Cat</SelectItem>
+                        <SelectItem value="bird">Bird</SelectItem>
+                        <SelectItem value="small_mammal">
+                          Small Mammal
+                        </SelectItem>
+                        <SelectItem value="reptile">Reptile</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-            <TabsContent value="symptoms">
-              <Card className="bg-white border-2">
-                <CardHeader className="pb-6">
-                  <CardTitle className="text-2xl">Symptom Analysis</CardTitle>
-                  <CardDescription className="text-base">
-                    Provide detailed information about your pet's symptoms for a
-                    more accurate analysis
-                  </CardDescription>
-                </CardHeader>
-                <form onSubmit={handleDetailed}>
-                  <CardContent className="space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-3">
+                  <div className="space-y-3">
+                    <Label htmlFor="age" className="text-base font-medium">
+                      Age
+                    </Label>
+                    <Select value={age} onValueChange={setAge}>
+                      <SelectTrigger id="age" className="h-12">
+                        <SelectValue placeholder="Select age range" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="puppy_kitten">
+                          Puppy/Kitten (0-1 year)
+                        </SelectItem>
+                        <SelectItem value="young_adult">
+                          Young Adult (1-3 years)
+                        </SelectItem>
+                        <SelectItem value="adult">Adult (3-7 years)</SelectItem>
+                        <SelectItem value="mature">
+                          Mature Adult (7-10 years)
+                        </SelectItem>
+                        <SelectItem value="senior">
+                          Senior (10+ years)
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <Label className="text-base font-medium">
+                    Symptoms (select all that apply)
+                  </Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                    {commonSymptoms.map((symptom) => (
+                      <div
+                        key={symptom.id}
+                        className="flex items-center space-x-3"
+                      >
+                        <Checkbox
+                          id={symptom.id}
+                          checked={selectedSymptoms.includes(symptom.id)}
+                          onCheckedChange={(checked) =>
+                            handleSymptomChange(symptom.id, checked === true)
+                          }
+                          className="h-5 w-5"
+                        />
                         <Label
-                          htmlFor="pet-type"
-                          className="text-base font-medium"
+                          htmlFor={symptom.id}
+                          className="font-normal text-base cursor-pointer"
                         >
-                          Pet Type
+                          {symptom.label}
                         </Label>
-                        <Select value={petType} onValueChange={setPetType}>
-                          <SelectTrigger id="pet-type" className="h-12">
-                            <SelectValue placeholder="Select pet type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="dog">Dog</SelectItem>
-                            <SelectItem value="cat">Cat</SelectItem>
-                            <SelectItem value="bird">Bird</SelectItem>
-                            <SelectItem value="small_mammal">
-                              Small Mammal
-                            </SelectItem>
-                            <SelectItem value="reptile">Reptile</SelectItem>
-                          </SelectContent>
-                        </Select>
                       </div>
+                    ))}
+                  </div>
+                </div>
 
-                      <div className="space-y-3">
-                        <Label htmlFor="age" className="text-base font-medium">
-                          Age
-                        </Label>
-                        <Select value={age} onValueChange={setAge}>
-                          <SelectTrigger id="age" className="h-12">
-                            <SelectValue placeholder="Select age range" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="puppy_kitten">
-                              Puppy/Kitten (0-1 year)
-                            </SelectItem>
-                            <SelectItem value="young_adult">
-                              Young Adult (1-3 years)
-                            </SelectItem>
-                            <SelectItem value="adult">
-                              Adult (3-7 years)
-                            </SelectItem>
-                            <SelectItem value="mature">
-                              Mature Adult (7-10 years)
-                            </SelectItem>
-                            <SelectItem value="senior">
-                              Senior (10+ years)
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <Label
+                      htmlFor="symptom-duration"
+                      className="text-base font-medium"
+                    >
+                      Duration of Symptoms
+                    </Label>
+                    <Select
+                      value={symptomDuration}
+                      onValueChange={setSymptomDuration}
+                    >
+                      <SelectTrigger id="symptom-duration" className="h-12">
+                        <SelectValue placeholder="How long?" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="today">Started today</SelectItem>
+                        <SelectItem value="days">Past few days</SelectItem>
+                        <SelectItem value="week">About a week</SelectItem>
+                        <SelectItem value="weeks">Several weeks</SelectItem>
+                        <SelectItem value="month">A month or more</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                    <div className="space-y-4">
-                      <Label className="text-base font-medium">
-                        Symptoms (select all that apply)
-                      </Label>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
-                        {commonSymptoms.map((symptom) => (
-                          <div
-                            key={symptom.id}
-                            className="flex items-center space-x-3"
-                          >
-                            <Checkbox
-                              id={symptom.id}
-                              checked={selectedSymptoms.includes(symptom.id)}
-                              onCheckedChange={(checked) =>
-                                handleSymptomChange(
-                                  symptom.id,
-                                  checked === true
-                                )
-                              }
-                              className="h-5 w-5"
-                            />
-                            <Label
-                              htmlFor={symptom.id}
-                              className="font-normal text-base cursor-pointer"
-                            >
-                              {symptom.label}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-3">
+                  <div className="space-y-3">
+                    <Label className="text-base font-medium">
+                      Symptom Severity
+                    </Label>
+                    <RadioGroup
+                      value={symptomSeverity}
+                      onValueChange={setSymptomSeverity}
+                      className="flex flex-col space-y-3"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <RadioGroupItem
+                          value="mild"
+                          id="severity-mild"
+                          className="h-5 w-5"
+                        />
                         <Label
-                          htmlFor="symptom-duration"
-                          className="text-base font-medium"
+                          htmlFor="severity-mild"
+                          className="font-normal text-base cursor-pointer"
                         >
-                          Duration of Symptoms
+                          Mild - Barely noticeable
                         </Label>
-                        <Select
-                          value={symptomDuration}
-                          onValueChange={setSymptomDuration}
-                        >
-                          <SelectTrigger id="symptom-duration" className="h-12">
-                            <SelectValue placeholder="How long?" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="today">Started today</SelectItem>
-                            <SelectItem value="days">Past few days</SelectItem>
-                            <SelectItem value="week">About a week</SelectItem>
-                            <SelectItem value="weeks">Several weeks</SelectItem>
-                            <SelectItem value="month">
-                              A month or more
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
                       </div>
-
-                      <div className="space-y-3">
-                        <Label className="text-base font-medium">
-                          Symptom Severity
+                      <div className="flex items-center space-x-3">
+                        <RadioGroupItem
+                          value="moderate"
+                          id="severity-moderate"
+                          className="h-5 w-5"
+                        />
+                        <Label
+                          htmlFor="severity-moderate"
+                          className="font-normal text-base cursor-pointer"
+                        >
+                          Moderate - Clearly present
                         </Label>
-                        <RadioGroup
-                          value={symptomSeverity}
-                          onValueChange={setSymptomSeverity}
-                          className="flex flex-col space-y-3"
-                        >
-                          <div className="flex items-center space-x-3">
-                            <RadioGroupItem
-                              value="mild"
-                              id="severity-mild"
-                              className="h-5 w-5"
-                            />
-                            <Label
-                              htmlFor="severity-mild"
-                              className="font-normal text-base cursor-pointer"
-                            >
-                              Mild - Barely noticeable
-                            </Label>
-                          </div>
-                          <div className="flex items-center space-x-3">
-                            <RadioGroupItem
-                              value="moderate"
-                              id="severity-moderate"
-                              className="h-5 w-5"
-                            />
-                            <Label
-                              htmlFor="severity-moderate"
-                              className="font-normal text-base cursor-pointer"
-                            >
-                              Moderate - Clearly present
-                            </Label>
-                          </div>
-                          <div className="flex items-center space-x-3">
-                            <RadioGroupItem
-                              value="severe"
-                              id="severity-severe"
-                              className="h-5 w-5"
-                            />
-                            <Label
-                              htmlFor="severity-severe"
-                              className="font-normal text-base cursor-pointer"
-                            >
-                              Severe - Significant impact
-                            </Label>
-                          </div>
-                        </RadioGroup>
                       </div>
-                    </div>
+                      <div className="flex items-center space-x-3">
+                        <RadioGroupItem
+                          value="severe"
+                          id="severity-severe"
+                          className="h-5 w-5"
+                        />
+                        <Label
+                          htmlFor="severity-severe"
+                          className="font-normal text-base cursor-pointer"
+                        >
+                          Severe - Significant impact
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                </div>
 
-                    <div className="space-y-3">
-                      <Label
-                        htmlFor="previous-conditions"
-                        className="text-base font-medium"
-                      >
-                        Previous Medical Conditions
-                      </Label>
-                      <Textarea
-                        id="previous-conditions"
-                        value={previousConditions}
-                        onChange={(e) => setPreviousConditions(e.target.value)}
-                        placeholder="List any previous diagnoses or ongoing health issues"
-                        className="min-h-[100px] text-base"
-                      />
-                    </div>
+                <div className="space-y-3">
+                  <Label
+                    htmlFor="previous-conditions"
+                    className="text-base font-medium"
+                  >
+                    Previous Medical Conditions
+                  </Label>
+                  <Textarea
+                    id="previous-conditions"
+                    value={previousConditions}
+                    onChange={(e) => setPreviousConditions(e.target.value)}
+                    placeholder="List any previous diagnoses or ongoing health issues"
+                    className="min-h-[100px] text-base"
+                  />
+                </div>
 
-                    <div className="space-y-3">
-                      <Label
-                        htmlFor="additional-info"
-                        className="text-base font-medium"
-                      >
-                        Additional Information
-                      </Label>
-                      <Textarea
-                        id="additional-info"
-                        value={additionalInfo}
-                        onChange={(e) => setAdditionalInfo(e.target.value)}
-                        placeholder="Any other details that might be relevant (changes in environment, diet, etc.)"
-                        className="min-h-[100px] text-base"
-                      />
-                    </div>
-                  </CardContent>
-                  <CardFooter className="pt-8">
-                    <Button
-                      type="submit"
-                      className="w-full bg-green-700 hover:bg-green-800 h-14 text-lg font-medium"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <LoadingSpinner size="sm" className="mr-2" />
-                      ) : null}
-                      {isLoading ? "Analyzing Symptoms..." : "Analyze Symptoms"}
-                    </Button>
-                  </CardFooter>
-                </form>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="quick">
-              <Card className="bg-white border-2">
-                <CardHeader className="pb-6">
-                  <CardTitle className="text-2xl">Quick Assessment</CardTitle>
-                  <CardDescription className="text-base">
-                    Get a rapid assessment of your pet's main symptom
-                  </CardDescription>
-                </CardHeader>
-                <form onSubmit={handleQuick}>
-                  <CardContent className="space-y-8">
-                    <div className="space-y-3">
-                      <Label
-                        htmlFor="quick-pet-type"
-                        className="text-base font-medium"
-                      >
-                        Pet Type
-                      </Label>
-                      <Select
-                        value={quickPetType}
-                        onValueChange={setQuickPetType}
-                      >
-                        <SelectTrigger id="quick-pet-type" className="h-12">
-                          <SelectValue placeholder="Select pet type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="dog">Dog</SelectItem>
-                          <SelectItem value="cat">Cat</SelectItem>
-                          <SelectItem value="bird">Bird</SelectItem>
-                          <SelectItem value="small_mammal">
-                            Small Mammal
-                          </SelectItem>
-                          <SelectItem value="reptile">Reptile</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-3">
-                      <Label
-                        htmlFor="primary-symptom"
-                        className="text-base font-medium"
-                      >
-                        Main Symptom
-                      </Label>
-                      <Textarea
-                        id="primary-symptom"
-                        value={primarySymptom}
-                        onChange={(e) => setPrimarySymptom(e.target.value)}
-                        placeholder="Describe the most concerning symptom you've noticed"
-                        required
-                        className="min-h-[120px] text-base"
-                      />
-                    </div>
-
-                    <div className="space-y-4">
-                      <Label className="text-base font-medium">
-                        How urgent does it seem?
-                      </Label>
-                      <RadioGroup
-                        value={urgency}
-                        onValueChange={setUrgency}
-                        className="flex flex-col space-y-3"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <RadioGroupItem
-                            value="low"
-                            id="urgency-low"
-                            className="h-5 w-5"
-                          />
-                          <Label
-                            htmlFor="urgency-low"
-                            className="font-normal text-base cursor-pointer"
-                          >
-                            Low - Monitoring the situation
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <RadioGroupItem
-                            value="medium"
-                            id="urgency-medium"
-                            className="h-5 w-5"
-                          />
-                          <Label
-                            htmlFor="urgency-medium"
-                            className="font-normal text-base cursor-pointer"
-                          >
-                            Medium - Concerned but not emergency
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <RadioGroupItem
-                            value="high"
-                            id="urgency-high"
-                            className="h-5 w-5"
-                          />
-                          <Label
-                            htmlFor="urgency-high"
-                            className="font-normal text-base cursor-pointer"
-                          >
-                            High - Very concerned, may need immediate attention
-                          </Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-                  </CardContent>
-                  <CardFooter className="pt-8">
-                    <Button
-                      type="submit"
-                      className="w-full bg-green-700 hover:bg-green-800 h-14 text-lg font-medium"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <LoadingSpinner size="sm" className="mr-2" />
-                      ) : null}
-                      {isLoading ? "Analyzing..." : "Get Quick Assessment"}
-                    </Button>
-                  </CardFooter>
-                </form>
-              </Card>
-            </TabsContent>
-          </Tabs>
+                <div className="space-y-3">
+                  <Label
+                    htmlFor="additional-info"
+                    className="text-base font-medium"
+                  >
+                    Additional Information
+                  </Label>
+                  <Textarea
+                    id="additional-info"
+                    value={additionalInfo}
+                    onChange={(e) => setAdditionalInfo(e.target.value)}
+                    placeholder="Any other details that might be relevant (changes in environment, diet, etc.)"
+                    className="min-h-[100px] text-base"
+                  />
+                </div>
+              </CardContent>
+              <CardFooter className="pt-8">
+                <Button
+                  type="submit"
+                  className="w-full bg-green-700 hover:bg-green-800 h-14 text-lg font-medium"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <LoadingSpinner size="sm" className="mr-2" />
+                  ) : null}
+                  {isLoading ? "Analyzing Symptoms..." : "Analyze Symptoms"}
+                </Button>
+              </CardFooter>
+            </form>
+          </Card>
 
           <div className="mt-8 p-6 border-2 rounded-lg bg-yellow-50 border-yellow-200">
             <h3 className="font-bold text-amber-800 mb-2 flex items-center text-lg">

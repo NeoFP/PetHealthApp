@@ -38,9 +38,6 @@ interface StoredResult {
   symptomSeverity?: string;
   additionalInfo?: string;
   previousConditions?: string;
-  primarySymptom?: string;
-  urgency?: string;
-  isQuickAssessment?: boolean;
 }
 
 export default function DiseaseDetectionResultsPage() {
@@ -171,13 +168,7 @@ export default function DiseaseDetectionResultsPage() {
     );
   }
 
-  const {
-    result,
-    petType,
-    selectedSymptoms,
-    isQuickAssessment,
-    primarySymptom,
-  } = resultData;
+  const { result, petType, selectedSymptoms } = resultData;
   const { predicted_condition } = result;
 
   return (
@@ -250,24 +241,15 @@ export default function DiseaseDetectionResultsPage() {
                   Symptoms Analyzed
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {isQuickAssessment ? (
+                  {selectedSymptoms?.map((symptom, i) => (
                     <Badge
+                      key={i}
                       variant="outline"
                       className="bg-blue-50 text-center py-2"
                     >
-                      {primarySymptom}
+                      {formatSymptomName(symptom)}
                     </Badge>
-                  ) : (
-                    selectedSymptoms?.map((symptom, i) => (
-                      <Badge
-                        key={i}
-                        variant="outline"
-                        className="bg-blue-50 text-center py-2"
-                      >
-                        {formatSymptomName(symptom)}
-                      </Badge>
-                    ))
-                  )}
+                  ))}
                 </div>
               </div>
 
