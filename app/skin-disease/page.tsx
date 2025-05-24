@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/notification";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Upload, Camera, Info } from "lucide-react";
@@ -26,9 +25,7 @@ export default function SkinDiseasePage() {
     "upload"
   );
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [description, setDescription] = useState("");
-  const [affectedArea, setAffectedArea] = useState<string>("unknown");
-  const [durationDays, setDurationDays] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -44,6 +41,7 @@ export default function SkinDiseasePage() {
         return;
       }
 
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -55,7 +53,7 @@ export default function SkinDiseasePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!imagePreview) {
+    if (!selectedFile || !imagePreview) {
       toast.error("Please upload an image of the skin condition");
       return;
     }
@@ -63,19 +61,52 @@ export default function SkinDiseasePage() {
     setIsLoading(true);
 
     try {
-      // In a real app, you would upload the image to an API
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Prepare FormData with image and hardcoded parameters
+      const formData = new FormData();
+      formData.append("image", selectedFile);
 
-      // Navigate to results page with query parameters
-      const params = new URLSearchParams({
-        area: affectedArea,
-        duration: durationDays || "unknown",
-        withDescription: description ? "true" : "false",
+      // Hardcoded parameters based on the image you showed
+      formData.append("ears", "flaky");
+      formData.append("paws_and_pads", "red");
+      formData.append("eyes", "normal");
+      formData.append("underbelly", "normal");
+      formData.append("tail", "irritated");
+      formData.append("armpits", "flaky");
+      formData.append("nails", "irritated");
+      formData.append("skin_folds", "normal");
+      formData.append("overall_coat_condition", "flaky");
+      formData.append("dermatitis", "flaky");
+      formData.append("flea_allergy", "1");
+      formData.append("ringworm", "0");
+      formData.append("scabies", "0");
+
+      // Make API call
+      const response = await fetch("http://localhost:5001/predict/disease", {
+        method: "POST",
+        body: formData,
       });
 
-      router.push(`/skin-disease/results?${params.toString()}`);
+      if (!response.ok) {
+        throw new Error("Failed to analyze skin condition");
+      }
+
+      const result = await response.json();
+
+      // Store result and image preview for the results page
+      sessionStorage.setItem(
+        "skinDiseaseResult",
+        JSON.stringify({
+          result,
+          imagePreview,
+        })
+      );
+
+      router.push("/skin-disease/results");
     } catch (error) {
-      toast.error("Failed to analyze image. Please try again.");
+      console.error("API Error:", error);
+      toast.error(
+        "Failed to analyze skin condition. Please check if the API server is running."
+      );
       setIsLoading(false);
     }
   };
@@ -222,61 +253,17 @@ export default function SkinDiseasePage() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-3">
-                    <Label
-                      htmlFor="affected-area"
-                      className="text-base font-medium"
-                    >
-                      Affected Body Area
-                    </Label>
-                    <select
-                      id="affected-area"
-                      value={affectedArea}
-                      onChange={(e) => setAffectedArea(e.target.value)}
-                      className="w-full h-12 px-4 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent bg-white"
-                    >
-                      <option value="unknown">Unknown/Not Sure</option>
-                      <option value="head">Head/Face</option>
-                      <option value="ears">Ears</option>
-                      <option value="back">Back</option>
-                      <option value="belly">Belly/Underside</option>
-                      <option value="legs">Legs/Paws</option>
-                      <option value="tail">Tail Area</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label htmlFor="duration" className="text-base font-medium">
-                      Duration (days)
-                    </Label>
-                    <input
-                      id="duration"
-                      type="number"
-                      min="0"
-                      value={durationDays}
-                      onChange={(e) => setDurationDays(e.target.value)}
-                      placeholder="How many days has this been present?"
-                      className="w-full h-12 px-4 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent bg-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="description"
-                    className="text-base font-medium"
-                  >
-                    Additional Description
-                  </Label>
-                  <Textarea
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Describe any other symptoms or observations (itching, pain, changes in color, etc.)"
-                    rows={4}
-                    className="text-base"
-                  />
+                {/* Information about automatic analysis */}
+                <div className="p-6 bg-green-50 rounded-lg border border-green-200">
+                  <h3 className="text-lg font-semibold text-green-800 mb-2">
+                    Automated Analysis
+                  </h3>
+                  <p className="text-green-700 text-base">
+                    Our AI will automatically analyze your pet's skin condition
+                    using advanced image recognition. Simply upload the image
+                    and we'll provide a detailed diagnosis with treatment
+                    recommendations.
+                  </p>
                 </div>
               </CardContent>
               <CardFooter className="flex-col space-y-6 pt-8">
