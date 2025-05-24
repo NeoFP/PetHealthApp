@@ -155,7 +155,7 @@ export default function ActivityPlannerPage() {
           Breed: data.breed,
           "Age (months)": parseInt(data.ageMonths),
           "Weight (kg)": parseFloat(data.weight),
-          Disease: data.disease || "",
+          Disease: data.disease && data.disease.trim() !== "" ? data.disease : "healthy",
         },
         owner_preferences: data.ownerPreferences || "",
         vet_recommendations: data.vetRecommendations || "",

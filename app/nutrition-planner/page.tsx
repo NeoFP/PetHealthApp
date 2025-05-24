@@ -145,13 +145,15 @@ export default function NutritionPlannerPage() {
           Breed: data.breed,
           "Age (months)": parseInt(data.ageMonths),
           "Weight (kg)": parseFloat(data.weight),
-          Disease: data.disease || "",
+          Disease: data.disease && data.disease.trim() !== "" ? data.disease : "healthy",
         },
         owner_preferences: data.ownerPreferences || "",
         vet_recommendations: data.vetRecommendations || "",
       };
 
       // Make API call
+      console.log("Making API call to nutrition endpoint with payload:", apiPayload);
+      
       const response = await fetch("http://localhost:5001/predict/nutrition", {
         method: "POST",
         headers: {
@@ -160,11 +162,17 @@ export default function NutritionPlannerPage() {
         body: JSON.stringify(apiPayload),
       });
 
+      console.log("API Response status:", response.status);
+      console.log("API Response headers:", response.headers);
+
       if (!response.ok) {
-        throw new Error("Failed to get nutrition plan from API");
+        const errorText = await response.text();
+        console.error("API Error Response:", errorText);
+        throw new Error(`Failed to get nutrition plan from API: ${response.status} - ${errorText}`);
       }
 
       const result = await response.json();
+      console.log("API Success Response:", result);
 
       // Store all data including form data and API result
       sessionStorage.setItem(
@@ -178,10 +186,19 @@ export default function NutritionPlannerPage() {
 
       router.push("/nutrition-planner/plan");
     } catch (error) {
-      console.error("API Error:", error);
-      toast.error(
-        "Failed to generate nutrition plan. Please check if the API server is running."
-      );
+      console.error("API Error Details:", error);
+      
+      let errorMessage = "Failed to generate nutrition plan. Please check if the API server is running.";
+      
+      if (error instanceof Error) {
+        if (error.message.includes("fetch")) {
+          errorMessage = "Cannot connect to API server. Please ensure the server is running on http://localhost:5001";
+        } else if (error.message.includes("Failed to get nutrition plan")) {
+          errorMessage = `API Error: ${error.message}`;
+        }
+      }
+      
+      toast.error(errorMessage);
       setIsLoading(false);
     }
   }
