@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -38,6 +38,7 @@ import { toast } from "@/components/ui/notification";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { getSharedPetData, saveSharedPetData, clearSharedPetData } from "@/lib/petFormData";
 
 const formSchema = z.object({
   petName: z.string().min(1, "Pet name is required"),
@@ -66,6 +67,7 @@ const healthConditions = [
 
 export default function NutritionPlannerPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [hasAutoFilledData, setHasAutoFilledData] = useState(false);
   const router = useRouter();
 
   const form = useForm<FormValues>({
@@ -79,6 +81,59 @@ export default function NutritionPlannerPage() {
       disease: "",
     },
   });
+
+  // Load shared data from localStorage on component mount
+  useEffect(() => {
+    const sharedData = getSharedPetData();
+    if (Object.keys(sharedData).length > 0) {
+      setHasAutoFilledData(true);
+      form.reset({
+        petName: sharedData.petName || "",
+        breed: sharedData.breed || "",
+        ageMonths: sharedData.ageMonths || "",
+        weight: sharedData.weight || "",
+        disease: sharedData.disease || "",
+        ownerPreferences: "",
+        vetRecommendations: "",
+        activityLevel: "moderate",
+        healthConditions: [],
+        includeActivity: true,
+      });
+      toast.success("Basic pet information auto-filled from previous entry!");
+    }
+  }, [form]);
+
+  // Save data to localStorage whenever form values change
+  useEffect(() => {
+    const subscription = form.watch((data) => {
+      saveSharedPetData({
+        petName: data.petName,
+        breed: data.breed,
+        ageMonths: data.ageMonths,
+        weight: data.weight,
+        disease: data.disease,
+      });
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+
+  const handleClearStoredData = () => {
+    clearSharedPetData();
+    setHasAutoFilledData(false);
+    form.reset({
+      petName: "",
+      breed: "",
+      ageMonths: "",
+      weight: "",
+      disease: "",
+      ownerPreferences: "",
+      vetRecommendations: "",
+      activityLevel: "moderate",
+      healthConditions: [],
+      includeActivity: true,
+    });
+    toast.success("Stored pet data cleared. Form reset.");
+  };
 
   async function onSubmit(data: FormValues) {
     setIsLoading(true);
@@ -144,6 +199,19 @@ export default function NutritionPlannerPage() {
                 Create personalized nutrition plans based on your pet's specific
                 needs
               </p>
+              {hasAutoFilledData && (
+                <div className="mt-4 flex justify-center">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleClearStoredData}
+                    className="text-gray-600 hover:text-gray-800"
+                  >
+                    Clear Auto-filled Data
+                  </Button>
+                </div>
+              )}
             </div>
 
             <Card className="bg-white border-2">
