@@ -36,13 +36,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "@/components/ui/notification";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
   petName: z.string().min(1, "Pet name is required"),
   petType: z.enum(["dog", "cat"]),
-  age: z.string().min(1, "Age is required"),
-  weight: z.string().min(1, "Weight is required"),
   breed: z.string().min(1, "Breed is required"),
+  ageMonths: z.string().min(1, "Age in months is required"),
+  weight: z.string().min(1, "Weight is required"),
+  disease: z.string().optional(),
+  ownerPreferences: z.string().optional(),
+  vetRecommendations: z.string().optional(),
   activityLevel: z.enum(["low", "moderate", "high"]),
   healthConditions: z.array(z.string()).optional(),
   currentDiet: z.string().optional(),
@@ -71,6 +75,9 @@ export default function NutritionPlannerPage() {
       activityLevel: "moderate",
       healthConditions: [],
       includeActivity: true,
+      ownerPreferences: "",
+      vetRecommendations: "",
+      disease: "",
     },
   });
 
@@ -78,18 +85,49 @@ export default function NutritionPlannerPage() {
     setIsLoading(true);
 
     try {
-      // In a real app, you would send this data to an API
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Prepare API payload
+      const apiPayload = {
+        dog_inputs: {
+          Breed: data.breed,
+          "Age (months)": parseInt(data.ageMonths),
+          "Weight (kg)": parseFloat(data.weight),
+          Disease: data.disease || "",
+        },
+        owner_preferences: data.ownerPreferences || "",
+        vet_recommendations: data.vetRecommendations || "",
+      };
 
-      // Navigate to the plan page with query params
-      const queryParams = new URLSearchParams({
-        name: data.petName,
-        activity: data.includeActivity ? "true" : "false",
+      // Make API call
+      const response = await fetch("http://localhost:5001/predict/nutrition", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(apiPayload),
       });
 
-      router.push(`/nutrition-planner/plan?${queryParams.toString()}`);
+      if (!response.ok) {
+        throw new Error("Failed to get nutrition plan from API");
+      }
+
+      const result = await response.json();
+
+      // Store all data including form data and API result
+      sessionStorage.setItem(
+        "nutritionPlanResult",
+        JSON.stringify({
+          result,
+          formData: data,
+          apiPayload,
+        })
+      );
+
+      router.push("/nutrition-planner/plan");
     } catch (error) {
-      toast.error("Failed to generate nutrition plan. Please try again.");
+      console.error("API Error:", error);
+      toast.error(
+        "Failed to generate nutrition plan. Please check if the API server is running."
+      );
       setIsLoading(false);
     }
   }
@@ -168,24 +206,215 @@ export default function NutritionPlannerPage() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {/* API Required Fields */}
+                  <div className="p-6 bg-green-50 rounded-lg border border-green-200">
+                    <h3 className="text-lg font-semibold text-green-800 mb-4">
+                      Required for Nutrition Plan
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
+                        name="breed"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium">
+                              Breed *
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="German Shepherd"
+                                {...field}
+                                className="h-12 text-base"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="ageMonths"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium">
+                              Age (months) *
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                min="1"
+                                placeholder="24"
+                                {...field}
+                                className="h-12 text-base"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="weight"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium">
+                              Weight (kg) *
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                min="0.1"
+                                step="0.1"
+                                placeholder="17.2"
+                                {...field}
+                                className="h-12 text-base"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="disease"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium">
+                              Disease/Health Condition
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="obesity, diabetes, etc."
+                                {...field}
+                                value={field.value || ""}
+                                className="h-12 text-base"
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Optional: Specify any health conditions
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-6 mt-6">
+                      <FormField
+                        control={form.control}
+                        name="ownerPreferences"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium">
+                              Owner Preferences
+                            </FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="e.g., my dog doesn't like to walk in the morning"
+                                {...field}
+                                value={field.value || ""}
+                                className="min-h-[80px] text-base"
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Share any preferences or constraints about your
+                              pet's routine
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="vetRecommendations"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium">
+                              Veterinarian Recommendations
+                            </FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="e.g., recommend to walk 30 minutes daily"
+                                {...field}
+                                value={field.value || ""}
+                                className="min-h-[80px] text-base"
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Include any specific recommendations from your vet
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Additional Information (Optional) */}
+                  <div className="p-6 bg-gray-50 rounded-lg border border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                      Additional Information (Optional)
+                    </h3>
+
                     <FormField
                       control={form.control}
-                      name="age"
+                      name="activityLevel"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="space-y-4 mb-6">
                           <FormLabel className="text-base font-medium">
-                            Age (years)
+                            Activity Level
                           </FormLabel>
                           <FormControl>
-                            <Input
-                              type="number"
-                              min="0"
-                              step="0.1"
-                              placeholder="3"
-                              {...field}
-                              className="h-12 text-base"
-                            />
+                            <RadioGroup
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              className="flex flex-col space-y-3"
+                            >
+                              <div className="flex items-center space-x-3">
+                                <RadioGroupItem
+                                  value="low"
+                                  id="activity-low"
+                                  className="h-5 w-5"
+                                />
+                                <FormLabel
+                                  htmlFor="activity-low"
+                                  className="font-normal text-base cursor-pointer"
+                                >
+                                  Low (Less than 30 minutes of activity per day)
+                                </FormLabel>
+                              </div>
+                              <div className="flex items-center space-x-3">
+                                <RadioGroupItem
+                                  value="moderate"
+                                  id="activity-moderate"
+                                  className="h-5 w-5"
+                                />
+                                <FormLabel
+                                  htmlFor="activity-moderate"
+                                  className="font-normal text-base cursor-pointer"
+                                >
+                                  Moderate (30-60 minutes of activity per day)
+                                </FormLabel>
+                              </div>
+                              <div className="flex items-center space-x-3">
+                                <RadioGroupItem
+                                  value="high"
+                                  id="activity-high"
+                                  className="h-5 w-5"
+                                />
+                                <FormLabel
+                                  htmlFor="activity-high"
+                                  className="font-normal text-base cursor-pointer"
+                                >
+                                  High (More than 60 minutes of activity per
+                                  day)
+                                </FormLabel>
+                              </div>
+                            </RadioGroup>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -194,22 +423,62 @@ export default function NutritionPlannerPage() {
 
                     <FormField
                       control={form.control}
-                      name="weight"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-base font-medium">
-                            Weight (kg)
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              min="0"
-                              step="0.1"
-                              placeholder="15"
-                              {...field}
-                              className="h-12 text-base"
-                            />
-                          </FormControl>
+                      name="healthConditions"
+                      render={() => (
+                        <FormItem className="mb-6">
+                          <div className="mb-4">
+                            <FormLabel className="text-base font-medium">
+                              General Health Conditions
+                            </FormLabel>
+                            <FormDescription className="text-base">
+                              Select any general health conditions (for
+                              reference)
+                            </FormDescription>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-white rounded-lg border">
+                            {healthConditions.map((condition) => (
+                              <FormField
+                                key={condition.id}
+                                control={form.control}
+                                name="healthConditions"
+                                render={({ field }) => {
+                                  return (
+                                    <FormItem
+                                      key={condition.id}
+                                      className="flex flex-row items-start space-x-3 space-y-0"
+                                    >
+                                      <FormControl>
+                                        <Checkbox
+                                          checked={field.value?.includes(
+                                            condition.id
+                                          )}
+                                          onCheckedChange={(checked) => {
+                                            const currentValue =
+                                              field.value || [];
+                                            return checked
+                                              ? field.onChange([
+                                                  ...currentValue,
+                                                  condition.id,
+                                                ])
+                                              : field.onChange(
+                                                  currentValue.filter(
+                                                    (value) =>
+                                                      value !== condition.id
+                                                  )
+                                                );
+                                          }}
+                                          className="h-5 w-5"
+                                        />
+                                      </FormControl>
+                                      <FormLabel className="font-normal text-base cursor-pointer">
+                                        {condition.label}
+                                      </FormLabel>
+                                    </FormItem>
+                                  );
+                                }}
+                              />
+                            ))}
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -217,195 +486,53 @@ export default function NutritionPlannerPage() {
 
                     <FormField
                       control={form.control}
-                      name="breed"
+                      name="currentDiet"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="mb-6">
                           <FormLabel className="text-base font-medium">
-                            Breed
+                            Current Diet
                           </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Golden Retriever"
+                              placeholder="Describe what your pet currently eats"
                               {...field}
+                              value={field.value || ""}
                               className="h-12 text-base"
                             />
                           </FormControl>
+                          <FormDescription className="text-base">
+                            This helps understand your pet's current nutrition
+                          </FormDescription>
                           <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="includeActivity"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              className="h-5 w-5"
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel className="text-base font-medium cursor-pointer">
+                              Include Activity Recommendations
+                            </FormLabel>
+                            <FormDescription className="text-base">
+                              Receive activity suggestions alongside the
+                              nutrition plan
+                            </FormDescription>
+                          </div>
                         </FormItem>
                       )}
                     />
                   </div>
-
-                  <FormField
-                    control={form.control}
-                    name="activityLevel"
-                    render={({ field }) => (
-                      <FormItem className="space-y-4">
-                        <FormLabel className="text-base font-medium">
-                          Activity Level
-                        </FormLabel>
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            className="flex flex-col space-y-3"
-                          >
-                            <div className="flex items-center space-x-3">
-                              <RadioGroupItem
-                                value="low"
-                                id="activity-low"
-                                className="h-5 w-5"
-                              />
-                              <FormLabel
-                                htmlFor="activity-low"
-                                className="font-normal text-base cursor-pointer"
-                              >
-                                Low (Less than 30 minutes of activity per day)
-                              </FormLabel>
-                            </div>
-                            <div className="flex items-center space-x-3">
-                              <RadioGroupItem
-                                value="moderate"
-                                id="activity-moderate"
-                                className="h-5 w-5"
-                              />
-                              <FormLabel
-                                htmlFor="activity-moderate"
-                                className="font-normal text-base cursor-pointer"
-                              >
-                                Moderate (30-60 minutes of activity per day)
-                              </FormLabel>
-                            </div>
-                            <div className="flex items-center space-x-3">
-                              <RadioGroupItem
-                                value="high"
-                                id="activity-high"
-                                className="h-5 w-5"
-                              />
-                              <FormLabel
-                                htmlFor="activity-high"
-                                className="font-normal text-base cursor-pointer"
-                              >
-                                High (More than 60 minutes of activity per day)
-                              </FormLabel>
-                            </div>
-                          </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="healthConditions"
-                    render={() => (
-                      <FormItem>
-                        <div className="mb-4">
-                          <FormLabel className="text-base font-medium">
-                            Health Conditions (if any)
-                          </FormLabel>
-                          <FormDescription className="text-base">
-                            Select any health conditions your pet has
-                          </FormDescription>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
-                          {healthConditions.map((condition) => (
-                            <FormField
-                              key={condition.id}
-                              control={form.control}
-                              name="healthConditions"
-                              render={({ field }) => {
-                                return (
-                                  <FormItem
-                                    key={condition.id}
-                                    className="flex flex-row items-start space-x-3 space-y-0"
-                                  >
-                                    <FormControl>
-                                      <Checkbox
-                                        checked={field.value?.includes(
-                                          condition.id
-                                        )}
-                                        onCheckedChange={(checked) => {
-                                          const currentValue =
-                                            field.value || [];
-                                          return checked
-                                            ? field.onChange([
-                                                ...currentValue,
-                                                condition.id,
-                                              ])
-                                            : field.onChange(
-                                                currentValue.filter(
-                                                  (value) =>
-                                                    value !== condition.id
-                                                )
-                                              );
-                                        }}
-                                        className="h-5 w-5"
-                                      />
-                                    </FormControl>
-                                    <FormLabel className="font-normal text-base cursor-pointer">
-                                      {condition.label}
-                                    </FormLabel>
-                                  </FormItem>
-                                );
-                              }}
-                            />
-                          ))}
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="currentDiet"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-base font-medium">
-                          Current Diet (optional)
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Describe what your pet currently eats"
-                            {...field}
-                            value={field.value || ""}
-                            className="h-12 text-base"
-                          />
-                        </FormControl>
-                        <FormDescription className="text-base">
-                          This helps us understand your pet's current nutrition
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="includeActivity"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            className="h-5 w-5"
-                          />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel className="text-base font-medium cursor-pointer">
-                            Include Activity Recommendations
-                          </FormLabel>
-                          <FormDescription className="text-base">
-                            Receive activity suggestions alongside the nutrition
-                            plan
-                          </FormDescription>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
                 </CardContent>
                 <CardFooter className="pt-8">
                   <Button
