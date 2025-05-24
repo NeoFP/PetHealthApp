@@ -35,6 +35,12 @@ import {
   Save,
   Settings,
   History,
+  Heart,
+  Activity,
+  Phone,
+  ImageIcon,
+  TrendingUp,
+  Shield,
 } from "lucide-react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
@@ -478,22 +484,34 @@ export default function ProfilePage() {
                 </div>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="grid grid-cols-4 mb-8 h-12">
+                  <TabsList className="grid grid-cols-7 mb-8 h-12">
                     <TabsTrigger value="info" className="text-base">
                       <Settings className="h-5 w-5 mr-2" />
                       Info
                     </TabsTrigger>
+                    <TabsTrigger value="health" className="text-base">
+                      <Heart className="h-5 w-5 mr-2" />
+                      Health
+                    </TabsTrigger>
                     <TabsTrigger value="medical" className="text-base">
                       <History className="h-5 w-5 mr-2" />
-                      Medical History
+                      Medical
                     </TabsTrigger>
                     <TabsTrigger value="medications" className="text-base">
-                      <Pill className="h-5 w-5 mr-2" />
+                      <Shield className="h-5 w-5 mr-2" />
                       Medications
                     </TabsTrigger>
                     <TabsTrigger value="appointments" className="text-base">
                       <Calendar className="h-5 w-5 mr-2" />
                       Appointments
+                    </TabsTrigger>
+                    <TabsTrigger value="gallery" className="text-base">
+                      <ImageIcon className="h-5 w-5 mr-2" />
+                      Gallery
+                    </TabsTrigger>
+                    <TabsTrigger value="emergency" className="text-base">
+                      <Phone className="h-5 w-5 mr-2" />
+                      Emergency
                     </TabsTrigger>
                   </TabsList>
 
@@ -583,7 +601,9 @@ export default function ProfilePage() {
                                 <Input
                                   id="edit-weight"
                                   value={editWeight}
-                                  onChange={(e) => setEditWeight(e.target.value)}
+                                  onChange={(e) =>
+                                    setEditWeight(e.target.value)
+                                  }
                                   type="number"
                                   min="0"
                                   step="0.1"
@@ -639,6 +659,154 @@ export default function ProfilePage() {
                     </Card>
                   </TabsContent>
 
+                  <TabsContent value="health" className="mt-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* Health Metrics */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center">
+                            <TrendingUp className="h-5 w-5 mr-2" />
+                            Health Metrics
+                          </CardTitle>
+                          <CardDescription>
+                            Key health indicators over time
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="text-center p-4 bg-green-50 rounded-lg">
+                              <p className="text-2xl font-bold text-green-700">
+                                98%
+                              </p>
+                              <p className="text-sm text-green-600">
+                                Health Score
+                              </p>
+                            </div>
+                            <div className="text-center p-4 bg-blue-50 rounded-lg">
+                              <p className="text-2xl font-bold text-blue-700">
+                                28.5kg
+                              </p>
+                              <p className="text-sm text-blue-600">
+                                Current Weight
+                              </p>
+                            </div>
+                            <div className="text-center p-4 bg-purple-50 rounded-lg">
+                              <p className="text-2xl font-bold text-purple-700">
+                                85
+                              </p>
+                              <p className="text-sm text-purple-600">
+                                Heart Rate
+                              </p>
+                            </div>
+                            <div className="text-center p-4 bg-orange-50 rounded-lg">
+                              <p className="text-2xl font-bold text-orange-700">
+                                38.2°C
+                              </p>
+                              <p className="text-sm text-orange-600">
+                                Temperature
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Activity Summary */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center">
+                            <Activity className="h-5 w-5 mr-2" />
+                            Activity Summary
+                          </CardTitle>
+                          <CardDescription>
+                            Daily activity and exercise tracking
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="space-y-3">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium">
+                                Daily Walks
+                              </span>
+                              <span className="text-sm">2 completed</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-green-600 h-2 rounded-full"
+                                style={{ width: "80%" }}
+                              ></div>
+                            </div>
+                          </div>
+                          <div className="space-y-3">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium">
+                                Play Time
+                              </span>
+                              <span className="text-sm">45 minutes</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-blue-600 h-2 rounded-full"
+                                style={{ width: "60%" }}
+                              ></div>
+                            </div>
+                          </div>
+                          <div className="space-y-3">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium">
+                                Rest Quality
+                              </span>
+                              <span className="text-sm">Excellent</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-purple-600 h-2 rounded-full"
+                                style={{ width: "90%" }}
+                              ></div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Nutrition Summary */}
+                      <Card className="lg:col-span-2">
+                        <CardHeader>
+                          <CardTitle>Weekly Nutrition Summary</CardTitle>
+                          <CardDescription>
+                            Feeding schedule and nutritional intake
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div className="text-center p-4 border rounded-lg">
+                              <p className="text-lg font-semibold">2.5 cups</p>
+                              <p className="text-sm text-gray-600">
+                                Daily Food
+                              </p>
+                            </div>
+                            <div className="text-center p-4 border rounded-lg">
+                              <p className="text-lg font-semibold">450ml</p>
+                              <p className="text-sm text-gray-600">
+                                Water Intake
+                              </p>
+                            </div>
+                            <div className="text-center p-4 border rounded-lg">
+                              <p className="text-lg font-semibold">3 treats</p>
+                              <p className="text-sm text-gray-600">
+                                Daily Treats
+                              </p>
+                            </div>
+                            <div className="text-center p-4 border rounded-lg">
+                              <p className="text-lg font-semibold">2,100 cal</p>
+                              <p className="text-sm text-gray-600">
+                                Daily Calories
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </TabsContent>
+
                   <TabsContent value="medical" className="mt-6">
                     <Card>
                       <CardHeader>
@@ -652,7 +820,10 @@ export default function ProfilePage() {
                         currentPet.medicalHistory.length > 0 ? (
                           <div className="space-y-4">
                             {currentPet.medicalHistory.map((item, index) => (
-                              <div key={index} className="border rounded-lg p-4">
+                              <div
+                                key={index}
+                                className="border rounded-lg p-4"
+                              >
                                 <div className="flex justify-between items-start">
                                   <div className="flex items-center">
                                     <Calendar className="h-4 w-4 mr-2 text-gray-500" />
@@ -695,14 +866,18 @@ export default function ProfilePage() {
                         currentPet.medications.length > 0 ? (
                           <div className="space-y-4">
                             {currentPet.medications.map((medication, index) => (
-                              <div key={index} className="border rounded-lg p-4">
+                              <div
+                                key={index}
+                                className="border rounded-lg p-4"
+                              >
                                 <div className="flex justify-between items-start">
                                   <div>
                                     <p className="font-medium">
                                       {medication.name}
                                     </p>
                                     <p className="text-sm text-gray-600 mt-1">
-                                      {medication.dosage}, {medication.frequency}
+                                      {medication.dosage},{" "}
+                                      {medication.frequency}
                                     </p>
                                   </div>
                                   <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
@@ -748,46 +923,310 @@ export default function ProfilePage() {
                         {currentPet.appointments &&
                         currentPet.appointments.length > 0 ? (
                           <div className="space-y-4">
-                            {currentPet.appointments.map((appointment, index) => (
-                              <div key={index} className="border rounded-lg p-4">
-                                <div className="flex justify-between items-start">
-                                  <div>
-                                    <p className="font-medium">
-                                      {appointment.type}
-                                    </p>
-                                    <p className="text-sm text-gray-600 mt-1">
-                                      {appointment.clinic}
-                                    </p>
-                                  </div>
-                                  <div className="text-right">
-                                    <div className="flex items-center text-gray-800 mb-1">
-                                      <Calendar className="h-4 w-4 mr-2" />
-                                      <span>{appointment.date}</span>
+                            {currentPet.appointments.map(
+                              (appointment, index) => (
+                                <div
+                                  key={index}
+                                  className="border rounded-lg p-4"
+                                >
+                                  <div className="flex justify-between items-start">
+                                    <div>
+                                      <p className="font-medium">
+                                        {appointment.type}
+                                      </p>
+                                      <p className="text-sm text-gray-600 mt-1">
+                                        {appointment.clinic}
+                                      </p>
                                     </div>
-                                    <div className="flex items-center text-gray-800">
-                                      <Clock className="h-4 w-4 mr-2" />
-                                      <span>{appointment.time}</span>
+                                    <div className="text-right">
+                                      <div className="flex items-center text-gray-800 mb-1">
+                                        <Calendar className="h-4 w-4 mr-2" />
+                                        <span>{appointment.date}</span>
+                                      </div>
+                                      <div className="flex items-center text-gray-800">
+                                        <Clock className="h-4 w-4 mr-2" />
+                                        <span>{appointment.time}</span>
+                                      </div>
                                     </div>
                                   </div>
+                                  {appointment.notes && (
+                                    <p className="mt-3 text-sm text-gray-600">
+                                      {appointment.notes}
+                                    </p>
+                                  )}
                                 </div>
-                                {appointment.notes && (
-                                  <p className="mt-3 text-sm text-gray-600">
-                                    {appointment.notes}
-                                  </p>
-                                )}
-                              </div>
-                            ))}
+                              )
+                            )}
                           </div>
                         ) : (
                           <div className="text-center py-8">
                             <p className="text-gray-500">
                               No appointments scheduled
                             </p>
-                            <Button className="mt-4">Schedule Appointment</Button>
+                            <Button className="mt-4">
+                              Schedule Appointment
+                            </Button>
                           </div>
                         )}
                       </CardContent>
                     </Card>
+                  </TabsContent>
+
+                  <TabsContent value="gallery" className="mt-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <Camera className="h-5 w-5 mr-2" />
+                            Photo Gallery
+                          </div>
+                          <Button size="sm">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Photo
+                          </Button>
+                        </CardTitle>
+                        <CardDescription>
+                          Capture and store your pet's memorable moments
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                          {/* Sample photos */}
+                          <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                            <Image
+                              src="/dog-avatar.png"
+                              alt="Pet photo"
+                              fill
+                              className="object-cover"
+                            />
+                            <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                              Today
+                            </div>
+                          </div>
+                          <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                            <Image
+                              src="/dog-avatar.png"
+                              alt="Pet photo"
+                              fill
+                              className="object-cover"
+                            />
+                            <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                              Yesterday
+                            </div>
+                          </div>
+                          <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                            <Image
+                              src="/dog-avatar.png"
+                              alt="Pet photo"
+                              fill
+                              className="object-cover"
+                            />
+                            <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                              Last week
+                            </div>
+                          </div>
+                          {/* Add photo placeholder */}
+                          <div className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-green-400 transition-colors">
+                            <div className="text-center">
+                              <Plus className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                              <p className="text-sm text-gray-500">Add Photo</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Photo categories */}
+                        <div className="mt-6 pt-6 border-t">
+                          <h3 className="text-lg font-medium mb-4">
+                            Photo Categories
+                          </h3>
+                          <div className="flex flex-wrap gap-2">
+                            <Button variant="outline" size="sm">
+                              All Photos (12)
+                            </Button>
+                            <Button variant="outline" size="sm">
+                              Vet Visits (3)
+                            </Button>
+                            <Button variant="outline" size="sm">
+                              Playtime (5)
+                            </Button>
+                            <Button variant="outline" size="sm">
+                              Grooming (2)
+                            </Button>
+                            <Button variant="outline" size="sm">
+                              Milestones (2)
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="emergency" className="mt-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* Emergency Contacts */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center justify-between">
+                            <div className="flex items-center">
+                              <Phone className="h-5 w-5 mr-2" />
+                              Emergency Contacts
+                            </div>
+                            <Button size="sm">
+                              <Plus className="h-4 w-4 mr-2" />
+                              Add Contact
+                            </Button>
+                          </CardTitle>
+                          <CardDescription>
+                            Important contacts for emergencies
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="border rounded-lg p-4">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <p className="font-medium">
+                                  Primary Veterinarian
+                                </p>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  Happy Paws Veterinary Clinic
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  Dr. Sarah Johnson
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-medium text-green-700">
+                                  +1 (555) 123-4567
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  24/7 Emergency
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="border rounded-lg p-4">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <p className="font-medium">
+                                  Emergency Animal Hospital
+                                </p>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  City Emergency Vet
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  24 Hour Emergency Care
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-medium text-red-700">
+                                  +1 (555) 999-8888
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  Always Open
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="border rounded-lg p-4">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <p className="font-medium">
+                                  Pet Poison Control
+                                </p>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  ASPCA Poison Control
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  24/7 Hotline
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-medium text-orange-700">
+                                  +1 (888) 426-4435
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  $95 consultation fee
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Emergency Information */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Emergency Information</CardTitle>
+                          <CardDescription>
+                            Quick reference for emergency situations
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                          <div>
+                            <h3 className="font-medium text-red-700 mb-2">
+                              ⚠️ Signs of Emergency
+                            </h3>
+                            <ul className="text-sm space-y-1 text-gray-700">
+                              <li>• Difficulty breathing or choking</li>
+                              <li>• Severe bleeding or trauma</li>
+                              <li>• Loss of consciousness</li>
+                              <li>• Seizures or convulsions</li>
+                              <li>• Suspected poisoning</li>
+                              <li>• Inability to urinate</li>
+                              <li>• Severe vomiting or diarrhea</li>
+                            </ul>
+                          </div>
+
+                          <div>
+                            <h3 className="font-medium text-green-700 mb-2">
+                              📋 Important Info to Have Ready
+                            </h3>
+                            <div className="text-sm space-y-2">
+                              <div className="flex justify-between">
+                                <span>Pet Name:</span>
+                                <span className="font-medium">
+                                  {currentPet.name}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Breed:</span>
+                                <span className="font-medium">
+                                  {currentPet.breed}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Age:</span>
+                                <span className="font-medium">
+                                  {currentPet.age} years
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Weight:</span>
+                                <span className="font-medium">
+                                  {currentPet.weight} kg
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Microchip ID:</span>
+                                <span className="font-medium">
+                                  982-123-456-789
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <p className="text-sm text-yellow-800">
+                              <strong>Tip:</strong> Keep this information easily
+                              accessible on your phone for quick reference
+                              during emergencies.
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
                   </TabsContent>
                 </Tabs>
               </>
