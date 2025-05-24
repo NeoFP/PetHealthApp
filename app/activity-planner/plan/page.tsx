@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,7 +30,6 @@ interface StoredResult {
   result: ApiResponse;
   formData: {
     petName: string;
-    petType: string;
     breed: string;
     ageMonths: string;
     weight: string;
@@ -112,7 +111,7 @@ export default function ActivityPlanPage() {
   // Function to parse and format the markdown-like content
   const formatActivityPlan = (content: string) => {
     const lines = content.split("\n");
-    const formatted: JSX.Element[] = [];
+    const formatted: React.ReactElement[] = [];
     let currentSection = "";
     let listItems: string[] = [];
 

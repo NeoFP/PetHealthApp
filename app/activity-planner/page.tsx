@@ -40,7 +40,6 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 const formSchema = z.object({
   petName: z.string().min(1, "Pet name is required"),
-  petType: z.enum(["dog", "cat"]),
   breed: z.string().min(1, "Breed is required"),
   ageMonths: z.string().min(1, "Age in months is required"),
   weight: z.string().min(1, "Weight is required"),
@@ -76,7 +75,6 @@ export default function ActivityPlannerPage() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      petType: "dog",
       currentActivityLevel: "moderate",
       availableSpace: "house_small_yard",
       ownerPreferences: "",
@@ -167,54 +165,25 @@ export default function ActivityPlannerPage() {
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)}>
                   <CardContent className="space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <FormField
-                        control={form.control}
-                        name="petName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-base font-medium">
-                              Pet Name
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Buddy"
-                                {...field}
-                                className="h-12 text-base"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="petType"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-base font-medium">
-                              Pet Type
-                            </FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger className="h-12">
-                                  <SelectValue placeholder="Select pet type" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="dog">Dog</SelectItem>
-                                <SelectItem value="cat">Cat</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                    <FormField
+                      control={form.control}
+                      name="petName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-medium">
+                            Pet Name
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Buddy"
+                              {...field}
+                              className="h-12 text-base"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
                     {/* API Required Fields */}
                     <div className="p-6 bg-green-50 rounded-lg border border-green-200">

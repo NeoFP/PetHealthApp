@@ -30,7 +30,6 @@ interface StoredResult {
   result: ApiResponse;
   formData: {
     petName: string;
-    petType: string;
     breed: string;
     ageMonths: string;
     weight: string;
@@ -313,7 +312,7 @@ export default function NutritionPlanPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div>
                   <p className="font-medium text-gray-600">Breed</p>
                   <p className="text-lg">{formData.breed}</p>
@@ -325,10 +324,6 @@ export default function NutritionPlanPage() {
                 <div>
                   <p className="font-medium text-gray-600">Weight</p>
                   <p className="text-lg">{formData.weight} kg</p>
-                </div>
-                <div>
-                  <p className="font-medium text-gray-600">Type</p>
-                  <p className="text-lg capitalize">{formData.petType}</p>
                 </div>
               </div>
               {formData.disease && (
