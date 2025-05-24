@@ -73,8 +73,6 @@ export default function DiseaseDetectionPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   // Form state for detailed analysis
-  const [petType, setPetType] = useState("dog");
-  const [age, setAge] = useState("");
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
   const [symptomDuration, setSymptomDuration] = useState("");
   const [symptomSeverity, setSymptomSeverity] = useState("");
@@ -156,7 +154,6 @@ export default function DiseaseDetectionPage() {
         "diseaseDetectionResult",
         JSON.stringify({
           result,
-          petType,
           selectedSymptoms,
           symptomDuration,
           symptomSeverity,
@@ -200,59 +197,6 @@ export default function DiseaseDetectionPage() {
               </CardHeader>
               <form onSubmit={handleDetailed}>
                 <CardContent className="space-y-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-3">
-                      <Label
-                        htmlFor="pet-type"
-                        className="text-base font-medium"
-                      >
-                        Pet Type
-                      </Label>
-                      <Select value={petType} onValueChange={setPetType}>
-                        <SelectTrigger id="pet-type" className="h-12">
-                          <SelectValue placeholder="Select pet type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="dog">Dog</SelectItem>
-                          <SelectItem value="cat">Cat</SelectItem>
-                          <SelectItem value="bird">Bird</SelectItem>
-                          <SelectItem value="small_mammal">
-                            Small Mammal
-                          </SelectItem>
-                          <SelectItem value="reptile">Reptile</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-3">
-                      <Label htmlFor="age" className="text-base font-medium">
-                        Age
-                      </Label>
-                      <Select value={age} onValueChange={setAge}>
-                        <SelectTrigger id="age" className="h-12">
-                          <SelectValue placeholder="Select age range" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="puppy_kitten">
-                            Puppy/Kitten (0-1 year)
-                          </SelectItem>
-                          <SelectItem value="young_adult">
-                            Young Adult (1-3 years)
-                          </SelectItem>
-                          <SelectItem value="adult">
-                            Adult (3-7 years)
-                          </SelectItem>
-                          <SelectItem value="mature">
-                            Mature Adult (7-10 years)
-                          </SelectItem>
-                          <SelectItem value="senior">
-                            Senior (10+ years)
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
                   <div className="space-y-4">
                     <Label className="text-base font-medium">
                       Symptoms (select all that apply)
