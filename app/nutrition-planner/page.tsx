@@ -87,18 +87,14 @@ export default function NutritionPlannerPage() {
     const sharedData = getSharedPetData();
     if (Object.keys(sharedData).length > 0) {
       setHasAutoFilledData(true);
-      form.reset({
-        petName: sharedData.petName || "",
-        breed: sharedData.breed || "",
-        ageMonths: sharedData.ageMonths || "",
-        weight: sharedData.weight || "",
-        disease: sharedData.disease || "",
-        ownerPreferences: "",
-        vetRecommendations: "",
-        activityLevel: "moderate",
-        healthConditions: [],
-        includeActivity: true,
-      });
+      
+      // Use setValue instead of reset to properly update form state
+      if (sharedData.petName) form.setValue("petName", sharedData.petName);
+      if (sharedData.breed) form.setValue("breed", sharedData.breed);
+      if (sharedData.ageMonths) form.setValue("ageMonths", sharedData.ageMonths);
+      if (sharedData.weight) form.setValue("weight", sharedData.weight);
+      if (sharedData.disease) form.setValue("disease", sharedData.disease);
+      
       toast.success("Basic pet information auto-filled from previous entry!");
     }
   }, [form]);
@@ -120,18 +116,14 @@ export default function NutritionPlannerPage() {
   const handleClearStoredData = () => {
     clearSharedPetData();
     setHasAutoFilledData(false);
-    form.reset({
-      petName: "",
-      breed: "",
-      ageMonths: "",
-      weight: "",
-      disease: "",
-      ownerPreferences: "",
-      vetRecommendations: "",
-      activityLevel: "moderate",
-      healthConditions: [],
-      includeActivity: true,
-    });
+    
+    // Clear the shared fields using setValue
+    form.setValue("petName", "");
+    form.setValue("breed", "");
+    form.setValue("ageMonths", "");
+    form.setValue("weight", "");
+    form.setValue("disease", "");
+    
     toast.success("Stored pet data cleared. Form reset.");
   };
 
