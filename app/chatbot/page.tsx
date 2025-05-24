@@ -28,10 +28,19 @@ export default function ChatbotPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [messageIdCounter, setMessageIdCounter] = useState(1);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Load messages from localStorage on component mount
+  // Handle mounting to prevent hydration mismatch
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Load messages from localStorage only after mounting
+  useEffect(() => {
+    if (!mounted) return;
+
     try {
       const storedMessages = localStorage.getItem(STORAGE_KEY);
       if (storedMessages) {
@@ -40,62 +49,69 @@ export default function ChatbotPage() {
           timestamp: new Date(msg.timestamp),
         }));
         setMessages(parsedMessages);
+        // Set counter to avoid ID conflicts
+        setMessageIdCounter(parsedMessages.length + 1);
       } else {
         // Initialize with welcome message if no stored messages
         const welcomeMessage: Message = {
-          id: `bot-${Date.now()}`,
+          id: "bot-1",
           role: "bot",
           content:
             "Hello! I'm your Pet Health assistant. How can I help you with your pet today?",
           timestamp: new Date(),
         };
         setMessages([welcomeMessage]);
+        setMessageIdCounter(2);
         localStorage.setItem(STORAGE_KEY, JSON.stringify([welcomeMessage]));
       }
     } catch (error) {
       console.error("Error loading messages from localStorage:", error);
       // Fallback to welcome message
       const welcomeMessage: Message = {
-        id: `bot-${Date.now()}`,
+        id: "bot-1",
         role: "bot",
         content:
           "Hello! I'm your Pet Health assistant. How can I help you with your pet today?",
         timestamp: new Date(),
       };
       setMessages([welcomeMessage]);
+      setMessageIdCounter(2);
     }
-  }, []);
+  }, [mounted]);
 
-  // Save messages to localStorage whenever messages change
+  // Save messages to localStorage whenever messages change (only if mounted)
   useEffect(() => {
-    if (messages.length > 0) {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
-      } catch (error) {
-        console.error("Error saving messages to localStorage:", error);
-      }
+    if (!mounted || messages.length === 0) return;
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    } catch (error) {
+      console.error("Error saving messages to localStorage:", error);
     }
-  }, [messages]);
+  }, [messages, mounted]);
 
   // Auto-scroll to bottom of messages
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (mounted) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, mounted]);
 
   const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || !mounted) return;
 
     const question = input.trim();
 
     // Add user message
     const userMessage: Message = {
-      id: `user-${Date.now()}`,
+      id: `user-${messageIdCounter}`,
       role: "user",
       content: question,
       timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    setMessageIdCounter((prev) => prev + 1);
     setInput("");
     setIsLoading(true);
 
@@ -117,7 +133,7 @@ export default function ChatbotPage() {
 
       // Add bot response
       const botMessage: Message = {
-        id: `bot-${Date.now()}`,
+        id: `bot-${messageIdCounter}`,
         role: "bot",
         content:
           result.answer ||
@@ -126,12 +142,13 @@ export default function ChatbotPage() {
       };
 
       setMessages((prev) => [...prev, botMessage]);
+      setMessageIdCounter((prev) => prev + 1);
     } catch (error) {
       console.error("Chat API Error:", error);
 
       // Add error message
       const errorMessage: Message = {
-        id: `bot-error-${Date.now()}`,
+        id: `bot-error-${messageIdCounter}`,
         role: "bot",
         content:
           "I apologize, but I'm having trouble connecting to the server right now. Please make sure the API server is running and try again. If the problem persists, you can still use other features of the Pet Health app.",
@@ -139,6 +156,7 @@ export default function ChatbotPage() {
       };
 
       setMessages((prev) => [...prev, errorMessage]);
+      setMessageIdCounter((prev) => prev + 1);
       toast.error(
         "Failed to get response from chat API. Please check if the server is running."
       );
@@ -155,8 +173,10 @@ export default function ChatbotPage() {
   };
 
   const resetConversation = () => {
+    if (!mounted) return;
+
     const welcomeMessage: Message = {
-      id: `bot-${Date.now()}`,
+      id: "bot-1",
       role: "bot",
       content:
         "Hello! I'm your Pet Health assistant. How can I help you with your pet today?",
@@ -164,20 +184,38 @@ export default function ChatbotPage() {
     };
 
     setMessages([welcomeMessage]);
+    setMessageIdCounter(2);
     localStorage.setItem(STORAGE_KEY, JSON.stringify([welcomeMessage]));
     toast.success("Chat conversation has been reset.");
   };
 
   const clearAllMessages = () => {
+    if (!mounted) return;
+
     setMessages([]);
+    setMessageIdCounter(1);
     localStorage.removeItem(STORAGE_KEY);
     toast.success("All chat history has been cleared.");
   };
 
+  // Show loading state during initial mount to prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="min-h-screen w-full bg-white">
+        <div className="flex justify-center items-center min-h-screen p-8 w-full">
+          <div className="flex flex-col items-center justify-center">
+            <LoadingSpinner size="lg" className="mb-4" />
+            <p className="text-lg">Loading chat...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen w-full bg-white">
       <div className="flex justify-center items-center min-h-screen p-8 w-full">
-        <div className="w-full max-w-5xl h-[85vh] flex flex-col">
+        <div className="w-full max-w-5xl">
           <div className="mb-8 text-center">
             <h1 className="text-4xl font-bold text-green-800 mb-4">
               Chat with Vet Assistant
@@ -188,8 +226,8 @@ export default function ChatbotPage() {
             </p>
           </div>
 
-          <Card className="flex-1 flex flex-col bg-white border-2">
-            <CardHeader className="pb-4 border-b">
+          <Card className="bg-white border-2 h-[70vh] flex flex-col">
+            <CardHeader className="pb-4 border-b flex-shrink-0">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-green-100 rounded-full">
@@ -224,7 +262,7 @@ export default function ChatbotPage() {
               </div>
             </CardHeader>
 
-            <CardContent className="flex-1 overflow-y-auto p-6 space-y-4">
+            <CardContent className="flex-1 overflow-y-auto p-6 space-y-4 min-h-0">
               {messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
@@ -305,41 +343,43 @@ export default function ChatbotPage() {
               <div ref={messagesEndRef} />
             </CardContent>
 
-            <CardFooter className="border-t pt-4 pb-4">
-              <div className="flex w-full items-end space-x-3">
-                <Input
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  placeholder="Ask about your pet's health, symptoms, nutrition, or care tips..."
-                  disabled={isLoading}
-                  className="flex-1 h-12 text-base rounded-xl"
-                  maxLength={500}
-                />
-                <Button
-                  onClick={handleSend}
-                  disabled={!input.trim() || isLoading}
-                  className="h-12 px-6 bg-green-700 hover:bg-green-800 rounded-xl"
-                >
-                  {isLoading ? (
-                    <LoadingSpinner size="sm" />
-                  ) : (
-                    <Send className="h-5 w-5" />
-                  )}
-                  <span className="sr-only">Send message</span>
-                </Button>
-              </div>
-
-              {/* Character count and status */}
-              <div className="mt-2 flex justify-between items-center text-xs text-gray-500">
-                <span>{input.length}/500 characters</span>
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`w-2 h-2 rounded-full ${
-                      isLoading ? "bg-yellow-500" : "bg-green-500"
-                    }`}
+            <CardFooter className="border-t pt-4 pb-4 flex-shrink-0">
+              <div className="w-full">
+                <div className="flex w-full items-end space-x-3">
+                  <Input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    placeholder="Ask about your pet's health, symptoms, nutrition, or care tips..."
+                    disabled={isLoading}
+                    className="flex-1 h-12 text-base rounded-xl"
+                    maxLength={500}
                   />
-                  <span>{isLoading ? "Processing..." : "Ready"}</span>
+                  <Button
+                    onClick={handleSend}
+                    disabled={!input.trim() || isLoading}
+                    className="h-12 px-6 bg-green-700 hover:bg-green-800 rounded-xl"
+                  >
+                    {isLoading ? (
+                      <LoadingSpinner size="sm" />
+                    ) : (
+                      <Send className="h-5 w-5" />
+                    )}
+                    <span className="sr-only">Send message</span>
+                  </Button>
+                </div>
+
+                {/* Character count and status */}
+                <div className="mt-2 flex justify-between items-center text-xs text-gray-500">
+                  <span>{input.length}/500 characters</span>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        isLoading ? "bg-yellow-500" : "bg-green-500"
+                      }`}
+                    />
+                    <span>{isLoading ? "Processing..." : "Ready"}</span>
+                  </div>
                 </div>
               </div>
             </CardFooter>
