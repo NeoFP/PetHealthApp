@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -108,123 +110,62 @@ export default function NutritionPlanPage() {
     }
   };
 
-  // Function to parse and format the markdown-like content
+  // Function to parse and format the markdown content
   const formatNutritionPlan = (content: string) => {
-    const lines = content.split("\n");
-    const formatted: JSX.Element[] = [];
-    let currentSection = "";
-    let listItems: string[] = [];
-
-    lines.forEach((line, index) => {
-      const trimmed = line.trim();
-
-      if (trimmed.startsWith("**") && trimmed.endsWith("**")) {
-        // Flush any pending list items
-        if (listItems.length > 0) {
-          formatted.push(
-            <ul
-              key={`list-${index}`}
-              className="list-disc list-inside space-y-1 mb-4 text-gray-700"
-            >
-              {listItems.map((item, i) => (
-                <li key={i} className="ml-4">
-                  {item}
-                </li>
-              ))}
-            </ul>
-          );
-          listItems = [];
-        }
-
-        // This is a heading
-        const heading = trimmed.replace(/\*\*/g, "");
-        if (heading.includes("Meal Plan for")) {
-          formatted.push(
-            <h1 key={index} className="text-3xl font-bold text-green-800 mb-6">
-              {heading}
-            </h1>
-          );
-        } else if (
-          ["Breakfast", "Lunch", "Dinner", "Snacks"].some((meal) =>
-            heading.includes(meal)
-          )
-        ) {
-          formatted.push(
-            <h3
-              key={index}
-              className="text-xl font-semibold text-green-700 mt-8 mb-4 flex items-center"
-            >
-              <Utensils className="h-5 w-5 mr-2" />
-              {heading}
-            </h3>
-          );
-        } else {
-          formatted.push(
-            <h2
-              key={index}
-              className="text-2xl font-semibold text-gray-800 mt-8 mb-4"
-            >
-              {heading}
-            </h2>
-          );
-        }
-      } else if (trimmed.startsWith("-")) {
-        // This is a list item
-        listItems.push(trimmed.substring(1).trim());
-      } else if (trimmed && !trimmed.startsWith("**")) {
-        // Flush any pending list items
-        if (listItems.length > 0) {
-          formatted.push(
-            <ul
-              key={`list-${index}`}
-              className="list-disc list-inside space-y-1 mb-4 text-gray-700"
-            >
-              {listItems.map((item, i) => (
-                <li key={i} className="ml-4">
-                  {item}
-                </li>
-              ))}
-            </ul>
-          );
-          listItems = [];
-        }
-
-        // Regular paragraph
-        if (trimmed.includes(":")) {
-          const [label, value] = trimmed.split(":");
-          formatted.push(
-            <p key={index} className="mb-2">
-              <span className="font-medium text-gray-800">{label}:</span>
-              <span className="text-gray-700">{value}</span>
-            </p>
-          );
-        } else {
-          formatted.push(
-            <p key={index} className="mb-4 text-gray-700 leading-relaxed">
-              {trimmed}
-            </p>
-          );
-        }
-      }
-    });
-
-    // Flush any remaining list items
-    if (listItems.length > 0) {
-      formatted.push(
-        <ul
-          key="final-list"
-          className="list-disc list-inside space-y-1 mb-4 text-gray-700"
+    return (
+      <div className="prose prose-lg max-w-none">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            h1: ({ children }) => (
+              <h1 className="text-3xl font-bold text-green-800 mb-6 flex items-center">
+                <Utensils className="h-6 w-6 mr-2" />
+                {children}
+              </h1>
+            ),
+            h2: ({ children }) => (
+              <h2 className="text-2xl font-semibold text-green-700 mt-8 mb-4 flex items-center">
+                <Utensils className="h-5 w-5 mr-2" />
+                {children}
+              </h2>
+            ),
+            h3: ({ children }) => (
+              <h3 className="text-xl font-semibold text-blue-700 mt-6 mb-3">
+                {children}
+              </h3>
+            ),
+            p: ({ children }) => (
+              <p className="mb-4 text-gray-700 leading-relaxed text-base">
+                {children}
+              </p>
+            ),
+            ul: ({ children }) => (
+              <ul className="list-none space-y-2 mb-4 ml-4">
+                {children}
+              </ul>
+            ),
+            li: ({ children }) => (
+              <li className="text-gray-700 flex items-start">
+                <span className="mr-2">•</span>
+                <span>{children}</span>
+              </li>
+            ),
+            strong: ({ children }) => (
+              <strong className="font-semibold text-green-800">
+                {children}
+              </strong>
+            ),
+            em: ({ children }) => (
+              <em className="italic text-gray-600">
+                {children}
+              </em>
+            ),
+          }}
         >
-          {listItems.map((item, i) => (
-            <li key={i} className="ml-4">
-              {item}
-            </li>
-          ))}
-        </ul>
-      );
-    }
-
-    return formatted;
+          {content}
+        </ReactMarkdown>
+      </div>
+    );
   };
 
   if (loading) {
@@ -340,9 +281,7 @@ export default function NutritionPlanPage() {
           {/* Nutrition Plan Content */}
           <Card className="bg-white border-2 mb-8">
             <CardContent className="p-8">
-              <div className="prose prose-lg max-w-none">
-                {formatNutritionPlan(result.nutrition_plan)}
-              </div>
+              {formatNutritionPlan(result.nutrition_plan)}
             </CardContent>
           </Card>
 
