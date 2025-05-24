@@ -10,6 +10,7 @@ import {
   User,
   Activity,
   LayoutDashboard,
+  Dumbbell,
 } from "lucide-react";
 
 import {
@@ -38,6 +39,11 @@ const navItems = [
     title: "Nutrition Planner",
     href: "/nutrition-planner",
     icon: Utensils,
+  },
+  {
+    title: "Activity Planner",
+    href: "/activity-planner",
+    icon: Dumbbell,
   },
   {
     title: "Skin Disease Tool",
