@@ -14,6 +14,13 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "@/components/ui/notification";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Upload, Camera, Info } from "lucide-react";
@@ -27,6 +34,19 @@ export default function SkinDiseasePage() {
   );
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  // State for body part conditions (for UI only, not used in API)
+  const [bodyConditions, setBodyConditions] = useState({
+    ears: "",
+    pawsAndPads: "",
+    eyes: "",
+    underbelly: "",
+    tail: "",
+    armpits: "",
+    nails: "",
+    skinFolds: "",
+    overallCoat: "",
+  });
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -259,6 +279,310 @@ export default function SkinDiseasePage() {
                         </div>
                       </div>
                     )}
+
+                    {/* Body Part Condition Assessment */}
+                    <div className="mt-8 space-y-6">
+                      <div className="border-t pt-6">
+                        <h3 className="text-xl font-semibold text-green-800 mb-4">
+                          Body Part Assessment
+                        </h3>
+                        <p className="text-gray-600 mb-6">
+                          Please assess the condition of each body part to help
+                          our AI provide more accurate results.
+                        </p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {/* Ears */}
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">Ears</Label>
+                            <Select
+                              value={bodyConditions.ears}
+                              onValueChange={(value) =>
+                                setBodyConditions((prev) => ({
+                                  ...prev,
+                                  ears: value,
+                                }))
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select condition" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="flaky">Flaky</SelectItem>
+                                <SelectItem value="swollen">Swollen</SelectItem>
+                                <SelectItem value="dry">Dry</SelectItem>
+                                <SelectItem value="irritated">
+                                  Irritated
+                                </SelectItem>
+                                <SelectItem value="red">Red</SelectItem>
+                                <SelectItem value="discolored">
+                                  Discolored
+                                </SelectItem>
+                                <SelectItem value="normal">Normal</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Paws and Pads */}
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">
+                              Paws And Pads
+                            </Label>
+                            <Select
+                              value={bodyConditions.pawsAndPads}
+                              onValueChange={(value) =>
+                                setBodyConditions((prev) => ({
+                                  ...prev,
+                                  pawsAndPads: value,
+                                }))
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select condition" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="red">Red</SelectItem>
+                                <SelectItem value="dry">Dry</SelectItem>
+                                <SelectItem value="flaky">Flaky</SelectItem>
+                                <SelectItem value="swollen">Swollen</SelectItem>
+                                <SelectItem value="irritated">
+                                  Irritated
+                                </SelectItem>
+                                <SelectItem value="discolored">
+                                  Discolored
+                                </SelectItem>
+                                <SelectItem value="normal">Normal</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Eyes */}
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">Eyes</Label>
+                            <Select
+                              value={bodyConditions.eyes}
+                              onValueChange={(value) =>
+                                setBodyConditions((prev) => ({
+                                  ...prev,
+                                  eyes: value,
+                                }))
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select condition" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="normal">Normal</SelectItem>
+                                <SelectItem value="dry">Dry</SelectItem>
+                                <SelectItem value="swollen">Swollen</SelectItem>
+                                <SelectItem value="red">Red</SelectItem>
+                                <SelectItem value="irritated">
+                                  Irritated
+                                </SelectItem>
+                                <SelectItem value="discolored">
+                                  Discolored
+                                </SelectItem>
+                                <SelectItem value="flaky">Flaky</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Underbelly */}
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">
+                              Underbelly
+                            </Label>
+                            <Select
+                              value={bodyConditions.underbelly}
+                              onValueChange={(value) =>
+                                setBodyConditions((prev) => ({
+                                  ...prev,
+                                  underbelly: value,
+                                }))
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select condition" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="irritated">
+                                  Irritated
+                                </SelectItem>
+                                <SelectItem value="dry">Dry</SelectItem>
+                                <SelectItem value="swollen">Swollen</SelectItem>
+                                <SelectItem value="flaky">Flaky</SelectItem>
+                                <SelectItem value="red">Red</SelectItem>
+                                <SelectItem value="normal">Normal</SelectItem>
+                                <SelectItem value="discolored">
+                                  Discolored
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Tail */}
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">Tail</Label>
+                            <Select
+                              value={bodyConditions.tail}
+                              onValueChange={(value) =>
+                                setBodyConditions((prev) => ({
+                                  ...prev,
+                                  tail: value,
+                                }))
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select condition" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="flaky">Flaky</SelectItem>
+                                <SelectItem value="red">Red</SelectItem>
+                                <SelectItem value="discolored">
+                                  Discolored
+                                </SelectItem>
+                                <SelectItem value="dry">Dry</SelectItem>
+                                <SelectItem value="swollen">Swollen</SelectItem>
+                                <SelectItem value="irritated">
+                                  Irritated
+                                </SelectItem>
+                                <SelectItem value="normal">Normal</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Armpits */}
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">
+                              Armpits
+                            </Label>
+                            <Select
+                              value={bodyConditions.armpits}
+                              onValueChange={(value) =>
+                                setBodyConditions((prev) => ({
+                                  ...prev,
+                                  armpits: value,
+                                }))
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select condition" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="irritated">
+                                  Irritated
+                                </SelectItem>
+                                <SelectItem value="red">Red</SelectItem>
+                                <SelectItem value="discolored">
+                                  Discolored
+                                </SelectItem>
+                                <SelectItem value="normal">Normal</SelectItem>
+                                <SelectItem value="dry">Dry</SelectItem>
+                                <SelectItem value="swollen">Swollen</SelectItem>
+                                <SelectItem value="flaky">Flaky</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Nails */}
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">Nails</Label>
+                            <Select
+                              value={bodyConditions.nails}
+                              onValueChange={(value) =>
+                                setBodyConditions((prev) => ({
+                                  ...prev,
+                                  nails: value,
+                                }))
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select condition" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="normal">Normal</SelectItem>
+                                <SelectItem value="dry">Dry</SelectItem>
+                                <SelectItem value="red">Red</SelectItem>
+                                <SelectItem value="discolored">
+                                  Discolored
+                                </SelectItem>
+                                <SelectItem value="swollen">Swollen</SelectItem>
+                                <SelectItem value="irritated">
+                                  Irritated
+                                </SelectItem>
+                                <SelectItem value="flaky">Flaky</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Skin Folds */}
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">
+                              Skin Folds
+                            </Label>
+                            <Select
+                              value={bodyConditions.skinFolds}
+                              onValueChange={(value) =>
+                                setBodyConditions((prev) => ({
+                                  ...prev,
+                                  skinFolds: value,
+                                }))
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select condition" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="flaky">Flaky</SelectItem>
+                                <SelectItem value="swollen">Swollen</SelectItem>
+                                <SelectItem value="irritated">
+                                  Irritated
+                                </SelectItem>
+                                <SelectItem value="normal">Normal</SelectItem>
+                                <SelectItem value="discolored">
+                                  Discolored
+                                </SelectItem>
+                                <SelectItem value="red">Red</SelectItem>
+                                <SelectItem value="dry">Dry</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Overall Coat Condition */}
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">
+                              Overall Coat Condition
+                            </Label>
+                            <Select
+                              value={bodyConditions.overallCoat}
+                              onValueChange={(value) =>
+                                setBodyConditions((prev) => ({
+                                  ...prev,
+                                  overallCoat: value,
+                                }))
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select condition" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="flaky">Flaky</SelectItem>
+                                <SelectItem value="normal">Normal</SelectItem>
+                                <SelectItem value="red">Red</SelectItem>
+                                <SelectItem value="irritated">
+                                  Irritated
+                                </SelectItem>
+                                <SelectItem value="dry">Dry</SelectItem>
+                                <SelectItem value="swollen">Swollen</SelectItem>
+                                <SelectItem value="discolored">
+                                  Discolored
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Information about automatic analysis */}
