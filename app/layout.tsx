@@ -6,7 +6,6 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/notification";
-import { Footer } from "@/components/footer";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
@@ -32,7 +31,6 @@ function LayoutContent({ children }: RootLayoutProps) {
             <div className="min-h-full w-full bg-white">{children}</div>
           </main>
         </div>
-        <Footer />
       </div>
       <Toaster />
     </SidebarProvider>
