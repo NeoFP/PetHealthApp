@@ -14,6 +14,7 @@ import {
 import { Send, RefreshCw, Bot, User, AlertTriangle } from "lucide-react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { toast } from "@/components/ui/notification";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 interface Message {
   role: "user" | "bot";
@@ -213,199 +214,203 @@ export default function ChatbotPage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-white">
-      <div className="flex justify-center items-center min-h-screen p-8 w-full">
-        <div className="w-full max-w-5xl">
-          <div className="mb-8 text-center">
-            <h1 className="text-4xl font-bold text-green-800 mb-4">
-              Chat with Vet Assistant
-            </h1>
-            <p className="text-lg text-gray-600">
-              Ask questions about your pet's health, nutrition, symptoms, and
-              wellness
-            </p>
-          </div>
+    <ProtectedRoute>
+      <div className="min-h-screen w-full bg-white">
+        <div className="flex justify-center items-center min-h-screen p-8 w-full">
+          <div className="w-full max-w-5xl">
+            <div className="mb-8 text-center">
+              <h1 className="text-4xl font-bold text-green-800 mb-4">
+                Chat with Vet Assistant
+              </h1>
+              <p className="text-lg text-gray-600">
+                Ask questions about your pet's health, nutrition, symptoms, and
+                wellness
+              </p>
+            </div>
 
-          <Card className="bg-white border-2 h-[70vh] flex flex-col">
-            <CardHeader className="pb-4 border-b flex-shrink-0">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 rounded-full">
-                    <Bot className="h-6 w-6 text-green-700" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-xl text-green-800">
-                      Pet Health Assistant
-                    </CardTitle>
-                    <CardDescription className="text-base">
-                      AI-powered veterinary guidance for your pet
-                    </CardDescription>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={resetConversation}
-                  >
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    Reset Chat
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={clearAllMessages}
-                  >
-                    Clear History
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-
-            <CardContent className="flex-1 overflow-y-auto p-6 space-y-4 min-h-0">
-              {messages.length === 0 ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <Bot className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500 text-lg">
-                      No messages yet. Start a conversation!
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${
-                      message.role === "user" ? "justify-end" : "justify-start"
-                    }`}
-                  >
-                    <div
-                      className={`
-                        max-w-[80%] rounded-2xl p-4 shadow-sm
-                        ${
-                          message.role === "user"
-                            ? "bg-green-600 text-white"
-                            : "bg-gray-100 text-gray-800 border"
-                        }
-                      `}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        {message.role === "bot" ? (
-                          <Bot className="h-5 w-5 text-green-600" />
-                        ) : (
-                          <User className="h-5 w-5" />
-                        )}
-                        <span className="text-sm font-medium">
-                          {message.role === "bot"
-                            ? "Pet Health Assistant"
-                            : "You"}
-                        </span>
-                      </div>
-                      <p className="whitespace-pre-wrap leading-relaxed text-base">
-                        {message.content}
-                      </p>
-                      <div className="text-right mt-2">
-                        <span
-                          className={`text-xs ${
-                            message.role === "user"
-                              ? "text-green-100"
-                              : "text-gray-500"
-                          }`}
-                        >
-                          {message.timestamp.toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </span>
-                      </div>
+            <Card className="bg-white border-2 h-[70vh] flex flex-col">
+              <CardHeader className="pb-4 border-b flex-shrink-0">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-100 rounded-full">
+                      <Bot className="h-6 w-6 text-green-700" />
                     </div>
-                  </div>
-                ))
-              )}
-
-              {isLoading && (
-                <div className="flex justify-start">
-                  <div className="bg-gray-100 border max-w-[80%] rounded-2xl p-4 shadow-sm">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Bot className="h-5 w-5 text-green-600" />
-                      <span className="text-sm font-medium">
+                    <div>
+                      <CardTitle className="text-xl text-green-800">
                         Pet Health Assistant
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <LoadingSpinner size="sm" />
-                      <span className="text-gray-600">Thinking...</span>
+                      </CardTitle>
+                      <CardDescription className="text-base">
+                        AI-powered veterinary guidance for your pet
+                      </CardDescription>
                     </div>
                   </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={resetConversation}
+                    >
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Reset Chat
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={clearAllMessages}
+                    >
+                      Clear History
+                    </Button>
+                  </div>
                 </div>
-              )}
-              <div ref={messagesEndRef} />
-            </CardContent>
+              </CardHeader>
 
-            <CardFooter className="border-t pt-4 pb-4 flex-shrink-0">
-              <div className="w-full">
-                <div className="flex w-full items-end space-x-3">
-                  <Input
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    placeholder="Ask about your pet's health, symptoms, nutrition, or care tips..."
-                    disabled={isLoading}
-                    className="flex-1 h-12 text-base rounded-xl"
-                    maxLength={500}
-                  />
-                  <Button
-                    onClick={handleSend}
-                    disabled={!input.trim() || isLoading}
-                    className="h-12 px-6 bg-green-700 hover:bg-green-800 rounded-xl"
-                  >
-                    {isLoading ? (
-                      <LoadingSpinner size="sm" />
-                    ) : (
-                      <Send className="h-5 w-5" />
-                    )}
-                    <span className="sr-only">Send message</span>
-                  </Button>
-                </div>
-
-                {/* Character count and status */}
-                <div className="mt-2 flex justify-between items-center text-xs text-gray-500">
-                  <span>{input.length}/500 characters</span>
-                  <div className="flex items-center gap-2">
+              <CardContent className="flex-1 overflow-y-auto p-6 space-y-4 min-h-0">
+                {messages.length === 0 ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center">
+                      <Bot className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500 text-lg">
+                        No messages yet. Start a conversation!
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  messages.map((message) => (
                     <div
-                      className={`w-2 h-2 rounded-full ${
-                        isLoading ? "bg-yellow-500" : "bg-green-500"
+                      key={message.id}
+                      className={`flex ${
+                        message.role === "user"
+                          ? "justify-end"
+                          : "justify-start"
                       }`}
+                    >
+                      <div
+                        className={`
+                          max-w-[80%] rounded-2xl p-4 shadow-sm
+                          ${
+                            message.role === "user"
+                              ? "bg-green-600 text-white"
+                              : "bg-gray-100 text-gray-800 border"
+                          }
+                        `}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          {message.role === "bot" ? (
+                            <Bot className="h-5 w-5 text-green-600" />
+                          ) : (
+                            <User className="h-5 w-5" />
+                          )}
+                          <span className="text-sm font-medium">
+                            {message.role === "bot"
+                              ? "Pet Health Assistant"
+                              : "You"}
+                          </span>
+                        </div>
+                        <p className="whitespace-pre-wrap leading-relaxed text-base">
+                          {message.content}
+                        </p>
+                        <div className="text-right mt-2">
+                          <span
+                            className={`text-xs ${
+                              message.role === "user"
+                                ? "text-green-100"
+                                : "text-gray-500"
+                            }`}
+                          >
+                            {message.timestamp.toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+
+                {isLoading && (
+                  <div className="flex justify-start">
+                    <div className="bg-gray-100 border max-w-[80%] rounded-2xl p-4 shadow-sm">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Bot className="h-5 w-5 text-green-600" />
+                        <span className="text-sm font-medium">
+                          Pet Health Assistant
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <LoadingSpinner size="sm" />
+                        <span className="text-gray-600">Thinking...</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </CardContent>
+
+              <CardFooter className="border-t pt-4 pb-4 flex-shrink-0">
+                <div className="w-full">
+                  <div className="flex w-full items-end space-x-3">
+                    <Input
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={handleKeyPress}
+                      placeholder="Ask about your pet's health, symptoms, nutrition, or care tips..."
+                      disabled={isLoading}
+                      className="flex-1 h-12 text-base rounded-xl"
+                      maxLength={500}
                     />
-                    <span>{isLoading ? "Processing..." : "Ready"}</span>
+                    <Button
+                      onClick={handleSend}
+                      disabled={!input.trim() || isLoading}
+                      className="h-12 px-6 bg-green-700 hover:bg-green-800 rounded-xl"
+                    >
+                      {isLoading ? (
+                        <LoadingSpinner size="sm" />
+                      ) : (
+                        <Send className="h-5 w-5" />
+                      )}
+                      <span className="sr-only">Send message</span>
+                    </Button>
+                  </div>
+
+                  {/* Character count and status */}
+                  <div className="mt-2 flex justify-between items-center text-xs text-gray-500">
+                    <span>{input.length}/500 characters</span>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`w-2 h-2 rounded-full ${
+                          isLoading ? "bg-yellow-500" : "bg-green-500"
+                        }`}
+                      />
+                      <span>{isLoading ? "Processing..." : "Ready"}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardFooter>
-          </Card>
+              </CardFooter>
+            </Card>
 
-          {/* Disclaimer */}
-          <div className="mt-6 p-4 border-2 rounded-lg bg-yellow-50 border-yellow-200">
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5">
-                <AlertTriangle className="h-5 w-5 text-amber-600" />
-              </div>
-              <div>
-                <h3 className="font-bold text-amber-800 mb-1 text-base">
-                  Important Notice
-                </h3>
-                <p className="text-amber-800 text-sm leading-relaxed">
-                  This AI assistant provides general pet health information and
-                  should not replace professional veterinary advice. For
-                  emergencies or serious health concerns, please contact your
-                  veterinarian immediately.
-                </p>
+            {/* Disclaimer */}
+            <div className="mt-6 p-4 border-2 rounded-lg bg-yellow-50 border-yellow-200">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5">
+                  <AlertTriangle className="h-5 w-5 text-amber-600" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-amber-800 mb-1 text-base">
+                    Important Notice
+                  </h3>
+                  <p className="text-amber-800 text-sm leading-relaxed">
+                    This AI assistant provides general pet health information
+                    and should not replace professional veterinary advice. For
+                    emergencies or serious health concerns, please contact your
+                    veterinarian immediately.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

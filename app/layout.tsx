@@ -7,6 +7,8 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/notification";
 import { Footer } from "@/components/footer";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,11 +18,28 @@ export const metadata: Metadata = {
   generator: "v0.dev",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+interface RootLayoutProps {
   children: React.ReactNode;
-}>) {
+}
+
+function LayoutContent({ children }: RootLayoutProps) {
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full flex-col bg-white">
+        <div className="flex flex-1 w-full bg-white">
+          <AppSidebar />
+          <main className="flex-1 w-full bg-white overflow-auto">
+            <div className="min-h-full w-full bg-white">{children}</div>
+          </main>
+        </div>
+        <Footer />
+      </div>
+      <Toaster />
+    </SidebarProvider>
+  );
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" className="light">
       <body className={`${inter.className} bg-white`}>
@@ -31,18 +50,9 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <SidebarProvider>
-            <div className="flex min-h-screen w-full flex-col bg-white">
-              <div className="flex flex-1 w-full bg-white">
-                <AppSidebar />
-                <main className="flex-1 w-full bg-white overflow-auto">
-                  <div className="min-h-full w-full bg-white">{children}</div>
-                </main>
-              </div>
-              <Footer />
-            </div>
-            <Toaster />
-          </SidebarProvider>
+          <AuthProvider>
+            <LayoutContent>{children}</LayoutContent>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

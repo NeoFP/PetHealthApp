@@ -1,5 +1,5 @@
 "use client";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Home,
@@ -11,6 +11,7 @@ import {
   Activity,
   LayoutDashboard,
   Dumbbell,
+  LogOut,
 } from "lucide-react";
 
 import {
@@ -23,6 +24,8 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 const navItems = [
   {
@@ -64,11 +67,23 @@ const navItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { isLoggedIn, user, logout } = useAuth();
 
-  // Don't show sidebar on login, signup or home page
-  if (pathname === "/" || pathname === "/login" || pathname === "/signup") {
+  // Don't show sidebar on login, signup or home page, or when not authenticated
+  if (
+    pathname === "/" ||
+    pathname === "/login" ||
+    pathname === "/signup" ||
+    !isLoggedIn
+  ) {
     return null;
   }
+
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
+  };
 
   return (
     <Sidebar className="border-r bg-white w-72 min-w-72">
@@ -81,6 +96,11 @@ export function AppSidebar() {
             </span>
           </Link>
         </div>
+        {user && (
+          <div className="mt-3 text-sm text-gray-600">
+            Welcome, {user.name || user.email.split("@")[0]}!
+          </div>
+        )}
       </SidebarHeader>
       <SidebarContent className="bg-white p-4">
         <SidebarMenu className="space-y-2">
@@ -104,6 +124,18 @@ export function AppSidebar() {
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
+
+        {/* Logout Button */}
+        <div className="mt-6 pt-4 border-t border-gray-200">
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            className="w-full h-12 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+          >
+            <LogOut className="h-5 w-5 mr-2" />
+            Logout
+          </Button>
+        </div>
       </SidebarContent>
       <SidebarRail />
       <div className="absolute bottom-6 left-0 right-0 px-6">

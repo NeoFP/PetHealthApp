@@ -36,6 +36,7 @@ import {
   Settings,
   History,
 } from "lucide-react";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 interface Pet {
   id: string;
@@ -376,422 +377,424 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-white">
-      <div className="flex justify-center items-start min-h-screen p-8 w-full">
-        <div className="w-full max-w-6xl">
-          <div className="mb-8 text-center">
-            <h1 className="text-4xl font-bold text-green-800 mb-4">
-              Pet Profiles
-            </h1>
-            <p className="text-lg text-gray-600">
-              Manage your pets' information and health records
-            </p>
-          </div>
+    <ProtectedRoute>
+      <div className="min-h-screen w-full bg-white">
+        <div className="flex justify-center items-start min-h-screen p-8 w-full">
+          <div className="w-full max-w-6xl">
+            <div className="mb-8 text-center">
+              <h1 className="text-4xl font-bold text-green-800 mb-4">
+                Pet Profiles
+              </h1>
+              <p className="text-lg text-gray-600">
+                Manage your pets' information and health records
+              </p>
+            </div>
 
-          <div className="flex items-center gap-4 mb-8 overflow-x-auto pb-2">
-            {pets.map((pet) => (
-              <button
-                key={pet.id}
-                onClick={() => {
-                  setActivePet(pet.id);
-                  setEditMode(false);
-                }}
-                className={`flex flex-col items-center px-6 py-4 rounded-lg min-w-[120px] ${
-                  pet.id === activePet
-                    ? "bg-green-50 border-2 border-green-500"
-                    : "bg-white border-2 border-gray-200 hover:border-green-300"
-                }`}
-              >
-                <div className="relative w-16 h-16 mb-3">
-                  <Image
-                    src={pet.image || "/dog-avatar.png"}
-                    alt={pet.name}
-                    fill
-                    className="rounded-full object-cover"
-                  />
-                </div>
-                <span className="text-base font-medium">{pet.name}</span>
-                <span className="text-sm text-gray-500 capitalize">
-                  {pet.breed}
-                </span>
-              </button>
-            ))}
-
-            <button
-              onClick={() => setAddingNew(true)}
-              className="flex flex-col items-center px-6 py-4 rounded-lg bg-gray-50 border-2 border-dashed border-gray-300 hover:border-green-400 min-w-[120px]"
-            >
-              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-                <Plus className="h-8 w-8 text-gray-400" />
-              </div>
-              <span className="text-base font-medium text-gray-600">
-                Add New
-              </span>
-            </button>
-          </div>
-
-          {currentPet && (
-            <>
-              <div className="flex justify-between items-center mb-8 p-6 bg-white border-2 rounded-lg">
-                <div className="flex items-center gap-6">
-                  <div className="relative w-20 h-20">
+            <div className="flex items-center gap-4 mb-8 overflow-x-auto pb-2">
+              {pets.map((pet) => (
+                <button
+                  key={pet.id}
+                  onClick={() => {
+                    setActivePet(pet.id);
+                    setEditMode(false);
+                  }}
+                  className={`flex flex-col items-center px-6 py-4 rounded-lg min-w-[120px] ${
+                    pet.id === activePet
+                      ? "bg-green-50 border-2 border-green-500"
+                      : "bg-white border-2 border-gray-200 hover:border-green-300"
+                  }`}
+                >
+                  <div className="relative w-16 h-16 mb-3">
                     <Image
-                      src={currentPet.image || "/dog-avatar.png"}
-                      alt={currentPet.name}
+                      src={pet.image || "/dog-avatar.png"}
+                      alt={pet.name}
                       fill
                       className="rounded-full object-cover"
                     />
                   </div>
-                  <div>
-                    <h2 className="text-3xl font-bold">{currentPet.name}</h2>
-                    <p className="text-lg text-gray-600 capitalize">
-                      {currentPet.breed} • {currentPet.age} years •{" "}
-                      {currentPet.weight} kg
-                    </p>
+                  <span className="text-base font-medium">{pet.name}</span>
+                  <span className="text-sm text-gray-500 capitalize">
+                    {pet.breed}
+                  </span>
+                </button>
+              ))}
+
+              <button
+                onClick={() => setAddingNew(true)}
+                className="flex flex-col items-center px-6 py-4 rounded-lg bg-gray-50 border-2 border-dashed border-gray-300 hover:border-green-400 min-w-[120px]"
+              >
+                <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                  <Plus className="h-8 w-8 text-gray-400" />
+                </div>
+                <span className="text-base font-medium text-gray-600">
+                  Add New
+                </span>
+              </button>
+            </div>
+
+            {currentPet && (
+              <>
+                <div className="flex justify-between items-center mb-8 p-6 bg-white border-2 rounded-lg">
+                  <div className="flex items-center gap-6">
+                    <div className="relative w-20 h-20">
+                      <Image
+                        src={currentPet.image || "/dog-avatar.png"}
+                        alt={currentPet.name}
+                        fill
+                        className="rounded-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <h2 className="text-3xl font-bold">{currentPet.name}</h2>
+                      <p className="text-lg text-gray-600 capitalize">
+                        {currentPet.breed} • {currentPet.age} years •{" "}
+                        {currentPet.weight} kg
+                      </p>
+                    </div>
                   </div>
+
+                  {!editMode && (
+                    <div className="flex gap-3">
+                      <Button
+                        variant="outline"
+                        size="default"
+                        onClick={handleEditToggle}
+                        className="flex items-center h-10 px-4"
+                      >
+                        <Edit className="h-5 w-5 mr-2" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="default"
+                        className="flex items-center text-red-600 hover:text-red-700 hover:bg-red-50 h-10 px-4"
+                        onClick={() => handleDeletePet(currentPet.id)}
+                      >
+                        <Trash className="h-5 w-5 mr-2" />
+                        Delete
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
-                {!editMode && (
-                  <div className="flex gap-3">
-                    <Button
-                      variant="outline"
-                      size="default"
-                      onClick={handleEditToggle}
-                      className="flex items-center h-10 px-4"
-                    >
-                      <Edit className="h-5 w-5 mr-2" />
-                      Edit
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="default"
-                      className="flex items-center text-red-600 hover:text-red-700 hover:bg-red-50 h-10 px-4"
-                      onClick={() => handleDeletePet(currentPet.id)}
-                    >
-                      <Trash className="h-5 w-5 mr-2" />
-                      Delete
-                    </Button>
-                  </div>
-                )}
-              </div>
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList className="grid grid-cols-4 mb-8 h-12">
+                    <TabsTrigger value="info" className="text-base">
+                      <Settings className="h-5 w-5 mr-2" />
+                      Info
+                    </TabsTrigger>
+                    <TabsTrigger value="medical" className="text-base">
+                      <History className="h-5 w-5 mr-2" />
+                      Medical History
+                    </TabsTrigger>
+                    <TabsTrigger value="medications" className="text-base">
+                      <Pill className="h-5 w-5 mr-2" />
+                      Medications
+                    </TabsTrigger>
+                    <TabsTrigger value="appointments" className="text-base">
+                      <Calendar className="h-5 w-5 mr-2" />
+                      Appointments
+                    </TabsTrigger>
+                  </TabsList>
 
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid grid-cols-4 mb-8 h-12">
-                  <TabsTrigger value="info" className="text-base">
-                    <Settings className="h-5 w-5 mr-2" />
-                    Info
-                  </TabsTrigger>
-                  <TabsTrigger value="medical" className="text-base">
-                    <History className="h-5 w-5 mr-2" />
-                    Medical History
-                  </TabsTrigger>
-                  <TabsTrigger value="medications" className="text-base">
-                    <Pill className="h-5 w-5 mr-2" />
-                    Medications
-                  </TabsTrigger>
-                  <TabsTrigger value="appointments" className="text-base">
-                    <Calendar className="h-5 w-5 mr-2" />
-                    Appointments
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="info" className="mt-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center justify-between">
-                        Pet Information
-                        {editMode && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={handleEditToggle}
-                          >
-                            Cancel
-                          </Button>
-                        )}
-                      </CardTitle>
-                      <CardDescription>
-                        {editMode
-                          ? "Edit your pet's details below"
-                          : "Basic information about your pet"}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      {editMode ? (
-                        <div className="grid grid-cols-1 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="edit-name">Pet Name</Label>
-                            <Input
-                              id="edit-name"
-                              value={editName}
-                              onChange={(e) => setEditName(e.target.value)}
-                            />
-                          </div>
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="edit-type">Pet Type</Label>
-                              <Select
-                                value={editType}
-                                onValueChange={setEditType}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="dog">Dog</SelectItem>
-                                  <SelectItem value="cat">Cat</SelectItem>
-                                  <SelectItem value="bird">Bird</SelectItem>
-                                  <SelectItem value="small_mammal">
-                                    Small Mammal
-                                  </SelectItem>
-                                  <SelectItem value="reptile">
-                                    Reptile
-                                  </SelectItem>
-                                  <SelectItem value="other">Other</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="edit-breed">Breed</Label>
-                              <Input
-                                id="edit-breed"
-                                value={editBreed}
-                                onChange={(e) => setEditBreed(e.target.value)}
-                              />
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="edit-age">Age (years)</Label>
-                              <Input
-                                id="edit-age"
-                                value={editAge}
-                                onChange={(e) => setEditAge(e.target.value)}
-                                type="number"
-                                min="0"
-                                step="0.1"
-                              />
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="edit-weight">Weight (kg)</Label>
-                              <Input
-                                id="edit-weight"
-                                value={editWeight}
-                                onChange={(e) => setEditWeight(e.target.value)}
-                                type="number"
-                                min="0"
-                                step="0.1"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div>
-                            <h3 className="text-sm font-medium text-gray-500 mb-1">
-                              Pet Type
-                            </h3>
-                            <p className="capitalize">{currentPet.type}</p>
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-medium text-gray-500 mb-1">
-                              Breed
-                            </h3>
-                            <p>{currentPet.breed}</p>
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-medium text-gray-500 mb-1">
-                              Age
-                            </h3>
-                            <p>{currentPet.age} years</p>
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-medium text-gray-500 mb-1">
-                              Weight
-                            </h3>
-                            <p>{currentPet.weight} kg</p>
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                    {editMode && (
-                      <CardFooter>
-                        <Button
-                          onClick={handleUpdate}
-                          disabled={saving}
-                          className="ml-auto bg-green-700 hover:bg-green-800"
-                        >
-                          {saving ? (
-                            <LoadingSpinner size="sm" className="mr-2" />
-                          ) : (
-                            <Save className="h-4 w-4 mr-2" />
+                  <TabsContent value="info" className="mt-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center justify-between">
+                          Pet Information
+                          {editMode && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={handleEditToggle}
+                            >
+                              Cancel
+                            </Button>
                           )}
-                          {saving ? "Saving..." : "Save Changes"}
-                        </Button>
-                      </CardFooter>
-                    )}
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="medical" className="mt-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Medical History</CardTitle>
-                      <CardDescription>
-                        Record of past medical conditions and treatments
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {currentPet.medicalHistory &&
-                      currentPet.medicalHistory.length > 0 ? (
-                        <div className="space-y-4">
-                          {currentPet.medicalHistory.map((item, index) => (
-                            <div key={index} className="border rounded-lg p-4">
-                              <div className="flex justify-between items-start">
-                                <div className="flex items-center">
-                                  <Calendar className="h-4 w-4 mr-2 text-gray-500" />
-                                  <p className="font-medium">{item.date}</p>
-                                </div>
-                                <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                                  {item.event}
-                                </span>
-                              </div>
-                              {item.notes && (
-                                <p className="mt-3 text-sm text-gray-600">
-                                  {item.notes}
-                                </p>
-                              )}
+                        </CardTitle>
+                        <CardDescription>
+                          {editMode
+                            ? "Edit your pet's details below"
+                            : "Basic information about your pet"}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        {editMode ? (
+                          <div className="grid grid-cols-1 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="edit-name">Pet Name</Label>
+                              <Input
+                                id="edit-name"
+                                value={editName}
+                                onChange={(e) => setEditName(e.target.value)}
+                              />
                             </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-center py-8">
-                          <p className="text-gray-500">
-                            No medical history recorded yet
-                          </p>
-                          <Button className="mt-4">Add Medical Record</Button>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </TabsContent>
 
-                <TabsContent value="medications" className="mt-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Medications</CardTitle>
-                      <CardDescription>
-                        Current and past medications
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {currentPet.medications &&
-                      currentPet.medications.length > 0 ? (
-                        <div className="space-y-4">
-                          {currentPet.medications.map((medication, index) => (
-                            <div key={index} className="border rounded-lg p-4">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <p className="font-medium">
-                                    {medication.name}
-                                  </p>
-                                  <p className="text-sm text-gray-600 mt-1">
-                                    {medication.dosage}, {medication.frequency}
-                                  </p>
-                                </div>
-                                <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                                  Active
-                                </span>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="edit-type">Pet Type</Label>
+                                <Select
+                                  value={editType}
+                                  onValueChange={setEditType}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select type" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="dog">Dog</SelectItem>
+                                    <SelectItem value="cat">Cat</SelectItem>
+                                    <SelectItem value="bird">Bird</SelectItem>
+                                    <SelectItem value="small_mammal">
+                                      Small Mammal
+                                    </SelectItem>
+                                    <SelectItem value="reptile">
+                                      Reptile
+                                    </SelectItem>
+                                    <SelectItem value="other">Other</SelectItem>
+                                  </SelectContent>
+                                </Select>
                               </div>
-                              <div className="mt-3 text-sm">
-                                <div className="flex items-center text-gray-500">
-                                  <Calendar className="h-4 w-4 mr-2" />
-                                  <span>Started: {medication.startDate}</span>
-                                </div>
-                                {medication.endDate && (
-                                  <div className="flex items-center text-gray-500 mt-1">
-                                    <Calendar className="h-4 w-4 mr-2" />
-                                    <span>Ends: {medication.endDate}</span>
+
+                              <div className="space-y-2">
+                                <Label htmlFor="edit-breed">Breed</Label>
+                                <Input
+                                  id="edit-breed"
+                                  value={editBreed}
+                                  onChange={(e) => setEditBreed(e.target.value)}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="edit-age">Age (years)</Label>
+                                <Input
+                                  id="edit-age"
+                                  value={editAge}
+                                  onChange={(e) => setEditAge(e.target.value)}
+                                  type="number"
+                                  min="0"
+                                  step="0.1"
+                                />
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label htmlFor="edit-weight">Weight (kg)</Label>
+                                <Input
+                                  id="edit-weight"
+                                  value={editWeight}
+                                  onChange={(e) => setEditWeight(e.target.value)}
+                                  type="number"
+                                  min="0"
+                                  step="0.1"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <h3 className="text-sm font-medium text-gray-500 mb-1">
+                                Pet Type
+                              </h3>
+                              <p className="capitalize">{currentPet.type}</p>
+                            </div>
+                            <div>
+                              <h3 className="text-sm font-medium text-gray-500 mb-1">
+                                Breed
+                              </h3>
+                              <p>{currentPet.breed}</p>
+                            </div>
+                            <div>
+                              <h3 className="text-sm font-medium text-gray-500 mb-1">
+                                Age
+                              </h3>
+                              <p>{currentPet.age} years</p>
+                            </div>
+                            <div>
+                              <h3 className="text-sm font-medium text-gray-500 mb-1">
+                                Weight
+                              </h3>
+                              <p>{currentPet.weight} kg</p>
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                      {editMode && (
+                        <CardFooter>
+                          <Button
+                            onClick={handleUpdate}
+                            disabled={saving}
+                            className="ml-auto bg-green-700 hover:bg-green-800"
+                          >
+                            {saving ? (
+                              <LoadingSpinner size="sm" className="mr-2" />
+                            ) : (
+                              <Save className="h-4 w-4 mr-2" />
+                            )}
+                            {saving ? "Saving..." : "Save Changes"}
+                          </Button>
+                        </CardFooter>
+                      )}
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="medical" className="mt-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Medical History</CardTitle>
+                        <CardDescription>
+                          Record of past medical conditions and treatments
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        {currentPet.medicalHistory &&
+                        currentPet.medicalHistory.length > 0 ? (
+                          <div className="space-y-4">
+                            {currentPet.medicalHistory.map((item, index) => (
+                              <div key={index} className="border rounded-lg p-4">
+                                <div className="flex justify-between items-start">
+                                  <div className="flex items-center">
+                                    <Calendar className="h-4 w-4 mr-2 text-gray-500" />
+                                    <p className="font-medium">{item.date}</p>
                                   </div>
+                                  <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                                    {item.event}
+                                  </span>
+                                </div>
+                                {item.notes && (
+                                  <p className="mt-3 text-sm text-gray-600">
+                                    {item.notes}
+                                  </p>
                                 )}
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-center py-8">
-                          <p className="text-gray-500">
-                            No medications recorded yet
-                          </p>
-                          <Button className="mt-4">Add Medication</Button>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-8">
+                            <p className="text-gray-500">
+                              No medical history recorded yet
+                            </p>
+                            <Button className="mt-4">Add Medical Record</Button>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
 
-                <TabsContent value="appointments" className="mt-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Upcoming Appointments</CardTitle>
-                      <CardDescription>
-                        Scheduled veterinary visits and checkups
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {currentPet.appointments &&
-                      currentPet.appointments.length > 0 ? (
-                        <div className="space-y-4">
-                          {currentPet.appointments.map((appointment, index) => (
-                            <div key={index} className="border rounded-lg p-4">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <p className="font-medium">
-                                    {appointment.type}
-                                  </p>
-                                  <p className="text-sm text-gray-600 mt-1">
-                                    {appointment.clinic}
-                                  </p>
+                  <TabsContent value="medications" className="mt-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Medications</CardTitle>
+                        <CardDescription>
+                          Current and past medications
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        {currentPet.medications &&
+                        currentPet.medications.length > 0 ? (
+                          <div className="space-y-4">
+                            {currentPet.medications.map((medication, index) => (
+                              <div key={index} className="border rounded-lg p-4">
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <p className="font-medium">
+                                      {medication.name}
+                                    </p>
+                                    <p className="text-sm text-gray-600 mt-1">
+                                      {medication.dosage}, {medication.frequency}
+                                    </p>
+                                  </div>
+                                  <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                                    Active
+                                  </span>
                                 </div>
-                                <div className="text-right">
-                                  <div className="flex items-center text-gray-800 mb-1">
+                                <div className="mt-3 text-sm">
+                                  <div className="flex items-center text-gray-500">
                                     <Calendar className="h-4 w-4 mr-2" />
-                                    <span>{appointment.date}</span>
+                                    <span>Started: {medication.startDate}</span>
                                   </div>
-                                  <div className="flex items-center text-gray-800">
-                                    <Clock className="h-4 w-4 mr-2" />
-                                    <span>{appointment.time}</span>
-                                  </div>
+                                  {medication.endDate && (
+                                    <div className="flex items-center text-gray-500 mt-1">
+                                      <Calendar className="h-4 w-4 mr-2" />
+                                      <span>Ends: {medication.endDate}</span>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
-                              {appointment.notes && (
-                                <p className="mt-3 text-sm text-gray-600">
-                                  {appointment.notes}
-                                </p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-center py-8">
-                          <p className="text-gray-500">
-                            No appointments scheduled
-                          </p>
-                          <Button className="mt-4">Schedule Appointment</Button>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </Tabs>
-            </>
-          )}
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-8">
+                            <p className="text-gray-500">
+                              No medications recorded yet
+                            </p>
+                            <Button className="mt-4">Add Medication</Button>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="appointments" className="mt-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Upcoming Appointments</CardTitle>
+                        <CardDescription>
+                          Scheduled veterinary visits and checkups
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        {currentPet.appointments &&
+                        currentPet.appointments.length > 0 ? (
+                          <div className="space-y-4">
+                            {currentPet.appointments.map((appointment, index) => (
+                              <div key={index} className="border rounded-lg p-4">
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <p className="font-medium">
+                                      {appointment.type}
+                                    </p>
+                                    <p className="text-sm text-gray-600 mt-1">
+                                      {appointment.clinic}
+                                    </p>
+                                  </div>
+                                  <div className="text-right">
+                                    <div className="flex items-center text-gray-800 mb-1">
+                                      <Calendar className="h-4 w-4 mr-2" />
+                                      <span>{appointment.date}</span>
+                                    </div>
+                                    <div className="flex items-center text-gray-800">
+                                      <Clock className="h-4 w-4 mr-2" />
+                                      <span>{appointment.time}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                {appointment.notes && (
+                                  <p className="mt-3 text-sm text-gray-600">
+                                    {appointment.notes}
+                                  </p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-8">
+                            <p className="text-gray-500">
+                              No appointments scheduled
+                            </p>
+                            <Button className="mt-4">Schedule Appointment</Button>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }
